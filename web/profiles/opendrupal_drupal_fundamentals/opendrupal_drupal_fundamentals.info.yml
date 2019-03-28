@@ -1,0 +1,45 @@
+name: Drupal Fundamentals Installation Profile
+type: profile
+description: 'Install Drupal and be ready for a OpenDrupal Drupal Fundamentals course.'
+version: 1.0.1
+core: 8.x
+dependencies:
+  - admin_toolbar
+  - admin_toolbar_tools
+  - automated_cron
+  - big_pipe
+  - block
+  - block_content
+  - breakpoint
+  - ckeditor
+  - color
+  - comment
+  - config
+  - contact
+  - contextual
+  - datetime
+  - dblog
+  - dynamic_page_cache
+  - editor
+  - field_ui
+  - file
+  - help
+  - history
+  - image
+  - menu_link_content
+  - menu_ui
+  - node
+  - options
+  - page_cache
+  - path
+  - quickedit
+  - rdf
+  - shortcut
+  - taxonomy
+  - toolbar
+  - tour
+  - views
+  - views_ui
+themes:
+  - bartik
+  - seven

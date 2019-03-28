@@ -1,0 +1,54 @@
+body.path-frontpage
+  &.columns-middle
+    .wrapper
+      margin-top: 0 !important
+      display: flex
+      flex-wrap: wrap
+      align-items: stretch
+
+      .content.column,
+      aside
+        float: none
+        margin-right: 0 !important
+
+      .content.column
+        width: 100%
+
+        .view-content
+          display: flex
+
+          .views-row
+            width: 50%
+            padding-right: 10px
+            &:last-child
+              padding-right: 0
+              padding-left: 10px
+            img
+              width: 100%
+              height: auto
+
+      aside
+        width: 50% !important
+        position: static !important
+
+        .block
+          margin-bottom: 30px
+          &:last-child
+            margin-bottom: 0
+
+          ul
+            margin-left: 20px
+            li
+              list-style-position: outside
+
+        div[id^="button"]
+          a
+            text-align: center
+            padding: 20px 30px
+            display: block
+            background: $page-background-color
+            color: #FFFFFF
+            font-size: 24px
+            &:hover
+              text-decoration: none
+              background: lighten($page-background-color, 10)

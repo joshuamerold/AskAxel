@@ -1,0 +1,28 @@
+{
+  "name": "df_festival",
+  "version": "8.0.0",
+  "description": "df_festival subtheme of fortytwo",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "find node_modules/ -name '*.info' -type f -delete"
+  },
+  "author": "Fabian de Rijk <fabian@finalist.com>",
+  "license": "GPL",
+  "devDependencies": {
+    "browser-sync": "^2.9.12",
+    "del": "^2.0.2",
+    "gulp-load-plugins": "^1.1.0",
+    "gulp-sass-lint": "^1.0.1",
+    "gulp-shell": "^0.5.1",
+    "run-sequence": "^1.1.5"
+  },
+  "dependencies": {
+    "gulp": "^3.9.0",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-jshint": "^1.11.2",
+    "gulp-sass": "^2.0.4",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.4.2"
+  }
+}

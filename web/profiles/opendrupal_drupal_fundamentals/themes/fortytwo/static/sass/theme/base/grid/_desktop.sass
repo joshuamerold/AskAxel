@@ -1,0 +1,84 @@
+// DESKTOP
+$grid-columns: $default-grid-columns
+$grid-column-width: $default-grid-column-width
+$grid-gutter-width: $default-grid-gutter-width
+
+// No need for a media query here,
+// this is always the base layout
+body
+  &.show-grid
+    +visualize-grid
+
+  &.show-responsive-identifier
+    .responsive-identifier
+      background: $desktop-identifier-color
+      &:after
+        content: $desktop-identifier-text
+
+  .navigation nav,
+  header,
+  footer,
+  div.wrapper
+    width: calc-grid() + px
+
+  #toolbar-administration nav
+    width: 100%
+
+  // 2 sidebar layouts
+  &.two-sidebars
+    &.columns-middle .content.column,
+    &.columns-right .content.column
+      +span-columns(8)
+
+    &.columns-left .content.column
+      +span-columns(8, false)
+
+    &.columns-middle .sidebar.first,
+    &.columns-left .sidebar.first,
+    &.columns-left .sidebar.second,
+    &.columns-right .sidebar.first
+      +span-columns(4)
+
+    &.columns-middle .sidebar.second,
+    &.columns-right .sidebar.second
+      +span-columns(4, false)
+
+    &.columns-middle
+      .content.column
+        margin-right: calc-grid(4, true) + px
+
+      .sidebar.second
+        position: absolute
+        right: 0
+
+  // 1 sidebar layouts
+  &.one-sidebar
+    &.columns-right .content.column,
+    &.columns-middle .content.column,
+    &.columns-left .content.column
+      +span-columns(12, false)
+
+    &.columns-middle .sidebar.second,
+    &.columns-middle .sidebar.first,
+    &.columns-left .sidebar.first,
+    &.columns-left .sidebar.second
+      +span-columns(4)
+
+    &.columns-right .sidebar.first,
+    &.columns-right .sidebar.second
+      +span-columns(4, false)
+
+    &.columns-right.sidebar-first,
+    &.columns-middle.sidebar-second
+      .content.column
+        +span-columns(12, true)
+
+      .sidebar.second
+        +span-columns(4, false)
+
+  // no sidebar layout
+  &.no-sidebars
+    &.columns-middle .content.column,
+    &.columns-right .content.column,
+    &.columns-left .content.column
+      +span-columns(16, false)

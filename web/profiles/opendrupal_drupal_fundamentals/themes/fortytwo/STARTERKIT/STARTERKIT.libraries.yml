@@ -1,0 +1,7 @@
+main:
+  version: VERSION
+  css:
+    base:
+      static/css/STARTERKIT.css: {}
+  js:
+      static/js/STARTERKIT.js: {}

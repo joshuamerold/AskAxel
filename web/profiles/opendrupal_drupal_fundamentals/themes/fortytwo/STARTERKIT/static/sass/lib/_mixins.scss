@@ -1,0 +1,21 @@
+%clearfix {
+  &:after {
+    clear: both;
+    content: '';
+    display: table;
+  }
+}
+
+%elementfocus {
+  $rgba: rgba($focus-ring-color, 0.75);
+  outline: 2px solid $rgba;
+  outline-offset: 2px;
+
+  html.no-rgba & {
+    outline: 2px solid $focus-ring-color;
+  }
+
+  &.hide-outline {
+    outline: none;
+  }
+}

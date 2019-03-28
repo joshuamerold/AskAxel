@@ -1,0 +1,76 @@
+// MOBILE LANDSCAPE
+
+$grid-columns: 8
+$grid-column-width: 47
+$grid-gutter-width: 12
+
+@media #{$mobile-l}
+  body.show-responsive-identifier
+    .responsive-identifier
+      background: $mobile-l-identifier-color
+      &:after
+        content: $mobile-l-identifier-text
+
+  // adaptive layout calculations
+  body.layout-adaptive
+    &.show-grid
+      +visualize-grid
+
+    .navigation nav,
+    footer,
+    header,
+    div.wrapper
+      width: calc-grid() + px
+
+    // all layouts
+    &.no-sidebars,
+    &.one-sidebar,
+    &.two-sidebars
+      .sidebar.first,
+      .sidebar.second,
+      .content.column
+        +span-columns(8, false)
+
+      &.columns-middle
+        .sidebar.second
+          position: relative
+          right: auto
+
+  // fluid layout calculations
+  body.layout-fluid
+    &.show-grid
+      +visualize-grid
+
+    nav,
+    header,
+    footer,
+    div.wrapper
+      width: calc-fluid-grid($grid-columns * 2)
+
+    // 2 sidebar layouts
+    &.two-sidebars
+      .sidebar.first,
+      .sidebar.second,
+      .content.column
+        +span-fluid-columns(8, false)
+
+      &.columns-middle
+        .sidebar.second
+          position: relative
+          right: auto
+
+    // 1 sidebar layouts and no sidebar layout
+    &.no-sidebars,
+    &.one-sidebar
+      &.columns-right .sidebar.second,
+      &.columns-right .sidebar.first,
+      &.columns-right .content.column,
+      &.columns-middle .content.column,
+      &.columns-left .content.column,
+      &.columns-middle .sidebar.second,
+      &.columns-middle .sidebar.first,
+      &.columns-left .sidebar.first,
+      &.columns-left .sidebar.second
+        +span-fluid-columns(8, false)
+
+

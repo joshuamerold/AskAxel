@@ -1,0 +1,167 @@
+// TABLET PORTRAIT
+
+$grid-columns: 12;
+$grid-column-width: 44;
+$grid-gutter-width: 20;
+
+@media #{$tablet-p} {
+  body.show-responsive-identifier {
+    .responsive-identifier {
+      background: $tablet-p-identifier-color;
+
+      &:after {
+        content: $tablet-p-identifier-text;
+      }
+    }
+  }
+
+  // adaptive layout calculations
+  body.layout-adaptive {
+    &.show-grid {
+      @include visualize-grid;
+    }
+
+    nav,
+    header,
+    footer,
+    div.wrapper {
+      width: calc-grid() + px;
+    }
+
+    &.columns-middle .sidebar.first {
+      @include span-columns(4);
+    }
+
+    &.columns-left .sidebar.first,
+    &.columns-left .sidebar.second,
+    &.columns-right .sidebar.first,
+    &.columns-right .sidebar.second {
+      @include span-columns(6);
+    }
+
+    &.columns-middle .content.column {
+      @include span-columns(8);
+    }
+
+    &.columns-right .content.column,
+    &.columns-middle .sidebar.second,
+    &.columns-left .content.column {
+      @include span-columns(12);
+    }
+
+    &.one-sidebar {
+      &.columns-right.sidebar-first,
+      &.columns-right.sidebar-second,
+      &.columns-middle.sidebar-first,
+      &.columns-middle.sidebar-second {
+        .content.column {
+          @include span-columns(8);
+        }
+
+        .sidebar.second,
+        .sidebar.first {
+          @include span-columns(4);
+        }
+      }
+
+      &.columns-left {
+        .content.column {
+          @include span-columns(8);
+        }
+
+        .sidebar.first,
+        .sidebar.second {
+          @include span-columns(4);
+        }
+      }
+    }
+
+    // no sidebars layout
+    &.no-sidebars {
+      &.columns-middle .content.column,
+      &.columns-right .content.column,
+      &.columns-left .content.column {
+        @include span-columns(12);
+      }
+    }
+  }
+
+  // fluid layout calculations
+  body.layout-fluid {
+    &.show-grid {
+      @include visualize-grid;
+    }
+
+    nav,
+    header,
+    footer,
+    div.wrapper {
+      width: calc-fluid-grid($grid-columns * 2);
+    }
+
+    // 2 sidebar layouts
+    &.two-sidebars {
+      &.columns-middle .sidebar.first {
+        @include span-fluid-columns(4);
+      }
+
+      &.columns-right .sidebar.first,
+      &.columns-left .sidebar.first,
+      &.columns-left .sidebar.second,
+      &.columns-right .sidebar.second {
+        @include span-fluid-columns(6);
+      }
+
+      &.columns-middle .content.column {
+        @include span-fluid-columns(8);
+      }
+
+      &.columns-right .content.column,
+      &.columns-middle .sidebar.second,
+      &.columns-left .content.column {
+        @include span-fluid-columns(12);
+      }
+    }
+
+    // 1 sidebar layouts
+    &.one-sidebar {
+      &.columns-right .content.column,
+      &.columns-middle .content.column,
+      &.columns-left .content.column {
+        @include span-fluid-columns(8);
+      }
+
+      &.columns-middle .sidebar.second,
+      &.columns-middle .sidebar.first,
+      &.columns-left .sidebar.first,
+      &.columns-left .sidebar.second {
+        @include span-fluid-columns(4);
+      }
+
+      &.columns-right .sidebar.first,
+      &.columns-right .sidebar.second {
+        @include span-fluid-columns(4);
+      }
+
+      &.columns-right.sidebar-first,
+      &.columns-middle.sidebar-second {
+        .content.column {
+          @include span-fluid-columns(8);
+        }
+
+        .sidebar.second {
+          @include span-fluid-columns(4);
+        }
+      }
+    }
+
+    // no sidebar layout
+    &.no-sidebars {
+      &.columns-middle .content.column,
+      &.columns-right .content.column,
+      &.columns-left .content.column {
+        @include span-fluid-columns(12);
+      }
+    }
+  }
+}

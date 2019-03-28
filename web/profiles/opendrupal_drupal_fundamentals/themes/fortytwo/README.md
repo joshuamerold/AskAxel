@@ -1,0 +1,1 @@
+See the README.md in the STARTERKIT folder for more info about this theme.

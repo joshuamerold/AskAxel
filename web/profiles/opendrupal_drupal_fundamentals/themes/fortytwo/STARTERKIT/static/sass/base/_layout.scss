@@ -1,0 +1,24 @@
+html, body {
+  -moz-osx-font-smoothing: grayscale; // sass-lint:disable-line no-vendor-prefixes
+  -webkit-font-smoothing: antialiased; // sass-lint:disable-line no-vendor-prefixes
+  color: $page-font-color;
+  font-family: $default-font;
+  font-size: pxtorem($default-font-size);
+  height: 100%;
+  line-height: pxtorem($default-line-height);
+}
+
+a {
+  text-decoration: none;
+}
+
+li.node-readmore a:after {
+  @include icomoon('caret-right');
+  font-size: 50%;
+  vertical-align: 1px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $default-font;
+  margin: 0 0 5px;
+}

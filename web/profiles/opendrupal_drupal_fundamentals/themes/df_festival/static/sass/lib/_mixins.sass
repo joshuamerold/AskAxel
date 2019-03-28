@@ -1,0 +1,15 @@
+%clearfix
+  &:after
+    content: ""
+    display: table
+    clear: both
+
+%elementfocus
+  outline: 2px solid rgba($focus-ring-color, 0.75)
+  outline-offset: 2px
+
+  html.no-rgba &
+    outline: 2px solid $focus-ring-color
+
+  &.hide-outline
+    outline: none !important

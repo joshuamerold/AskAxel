@@ -1,0 +1,22 @@
+name: Forty Two Sub-theme Starter Kit
+type: theme
+description: Forty Two Sub theme made from the starterkit
+base theme: fortytwo
+core: 8.x
+
+libraries:
+  - STARTERKIT/main
+
+stylesheets-remove:
+  - '@fortytwo/static/css/fortytwo.css'
+
+regions:
+  header: 'Header'
+  page_top: 'Page top'
+  highlighted: 'Highlighted area'
+  navigation: 'Navigation'
+  content: 'Content'
+  sidebar_first: 'First sidebar'
+  sidebar_second: 'Second sidebar'
+  page_bottom: 'Page bottom'
+  footer: 'Footer'

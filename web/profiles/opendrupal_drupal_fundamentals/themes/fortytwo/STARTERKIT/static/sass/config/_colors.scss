@@ -1,0 +1,63 @@
+// Basic colors
+$white: #FFFFFF;
+$black: #000000;
+$page-background-color: $white;
+$page-font-color: #3B3B3B;
+
+// CUSTOM VARIABLES
+$chathamsblue: #154273;
+$lochmara: #007BC7;
+$linkwater: #D9EBF7;
+$athensgrey: #EAEBEE;
+$porcelain: #F3F5F6;
+$silver: #C7C7C7;
+$tundora: #474747;
+
+$message-warning: #E5A200;
+$message-status: #4D8F46;
+$message-error: #B73939;
+
+// normal, hover, visited
+$bodycopy-link-colors: $lochmara, $chathamsblue, $chathamsblue;
+$checked-color: #007BC7;
+
+$focus-ring-color: #FFA500;
+
+$button-bg-color: #CB4E4E;
+$link-button-bg-color: #0E83CD;
+
+// INPUTS
+$webkit-autofill-color: #EBF5FA;
+$error-red: $message-error;
+
+// Below are variables that have been preset in the base theme,
+// if you need to change them, overrule them here
+// ==========================================================================
+
+// MARK TAG
+// $mark-background-color: yellow
+// $mark-font-color: black
+
+// BORDER RADIUS (used on inputs and buttons)
+// $button-border-radius: 2px
+// $input-border-radius: 2px
+
+// INPUTS
+// $input-focus-border-color: royalblue
+// $input-border-radius: $border-radius
+// $webkit-autofill-color: #f0feff
+
+// BUTTONS
+// $button-border-color:       silver
+// $button-border-hover-color: orangered
+// $button-font-color:         darken( $button-border-hover-color, 10% )
+// $button-border-radius:      $border-radius
+// $button-font-size:          $default-font-size
+// $button-background-color:   whitesmoke
+
+// FIELDSET
+// $fieldset-border-color:     $button-border-color
+
+// RADIO & CHECKBOXES
+// $checked-color:             $input-focus-border-color
+// $check-icon-color:          grey

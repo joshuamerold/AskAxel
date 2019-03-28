@@ -1,0 +1,456 @@
+input, a, button, textarea {
+  &:focus {
+    @extend %elementfocus;
+  }
+}
+
+label[for*='disabled'] {
+  color: darken($silver, 15%);
+}
+
+@mixin button {
+  background-color: $button-bg-color;
+  border: 0;
+  border-radius: pxtorem(3px);
+  color: $white;
+  cursor: pointer;
+  display: inline-block;
+  font-family: $default-font;
+  font-style: normal;
+  line-height: pxtorem($default-line-height / 1.5);
+  padding: pxtorem(5px, 8px, 5px, 8px);
+  text-decoration: none;
+  transition: color 0.1s ease-in-out, background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+  vertical-align: baseline;
+
+  &:hover {
+    background-color: lighten($button-bg-color, 10%);
+    text-decoration: none;
+  }
+
+  &:visited {
+    color: $white;
+  }
+
+  &.disabled:hover,
+  &.disabled {
+    $rgba: rgba(0, 0, 0, 0.3);
+    background-color: lighten($silver, 15%);
+    box-shadow: inset 0 pxtorem(-1px) $rgba;
+    color: darken($silver, 15%);
+    pointer-events: none;
+  }
+}
+
+button,
+input[type='submit'],
+input[type='button'],
+a.button {
+  @include button;
+
+  margin-right: pxtorem(3px);
+}
+
+a.button:hover {
+  color: $white;
+}
+
+label.select.prettify,
+div.password-suggestions,
+div.alert,
+input, textarea, fieldset {
+  border-radius: pxtorem(2px);
+}
+
+span.form-required {
+  color: $error-red;
+  font-weight: bold;
+}
+
+// TEXT INPUTS
+input, textarea {
+  border: pxtorem(1px) solid normal-color($bodycopy-link-colors);
+  padding: pxtorem(5px, 8px, 5px, 8px);
+
+  &.error {
+    border: pxtorem(1px) solid $error-red;
+  }
+
+  .form-item & {
+    &.error {
+      border: pxtorem(1px) solid $error-red;
+    }
+  }
+}
+
+input[type='file'] {
+  padding: pxtorem(1px, 0, 1px, 1px);
+}
+
+input[disabled] {
+  background-color: lighten($silver, 15%);
+  border: pxtorem(1px) solid $silver;
+}
+
+fieldset {
+  margin-top: pxtorem(10px);
+  padding: pxtorem(3px, 10px, 12px, 10px);
+
+  legend {
+    padding: pxtorem(0, 5px);
+    white-space: nowrap;
+  }
+
+  html.js & {
+    &.collapsible {
+      .fieldset-legend {
+        background-image: none;
+        padding-left: 0;
+
+        &:before {
+          @include arrow('down');
+          display: inline-block;
+          font-size: perc(12px);
+          height: 14px;
+          width: 14px;
+        }
+      }
+
+      &.collapsed {
+        border-left: pxtorem(1px) solid transparent;
+
+        .fieldset-legend {
+          &:before {
+            transform: rotate(-90deg);
+
+            vertical-align: 3px;
+          }
+        }
+      }
+
+      a.fieldset-title {
+        padding-left: pxtorem(3px);
+      }
+    }
+  }
+}
+
+.password-confirm > span {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.password-indicator {
+  border-radius: pxtorem(2px);
+
+  div {
+    background-color: $message-status;
+
+    border-radius: pxtorem(2px);
+  }
+}
+
+// Messages
+//
+// Broken glass everywhere!
+//
+// Markup: messages.hbs
+//
+// .alert-warning - be aware!
+// .alert-info    - hey!
+// .alert-danger  - uhoh!
+//
+// Style guide: components.messages
+div.alert {
+  background-image: none;
+  border: 0;
+  color: $white;
+  padding: pxtorem(10px);
+
+  .krumo-root {
+    color: $black;
+  }
+
+  > ul {
+    display: inline-block;
+    margin: 0;
+  }
+
+  &:before {
+    float: left;
+    margin-top: pxtorem(1px);
+    padding-right: pxtorem(10px);
+  }
+
+  &.alert-warning {
+    background-color: $message-warning;
+
+    &:before {
+      @include icomoon('warning');
+    }
+  }
+
+  &.alert-info {
+    background-color: $message-status;
+
+    &:before {
+      @include icomoon('status');
+    }
+  }
+
+  &.alert-danger {
+    background-color: $message-error;
+
+    &:before {
+      @include icomoon('error');
+    }
+  }
+}
+
+// INPUT CHECKBOXES
+input[type='checkbox']:checked + label,
+input[type='radio']:checked + label {
+  color: $checked-color;
+
+  &:before {
+    color: $checked-color;
+  }
+}
+
+input {
+  &[type='radio'],
+  &[type='checkbox'] {
+    @include opacity(0);
+    cursor: pointer;
+    position: absolute;
+
+    & + label {
+      cursor: pointer;
+    }
+
+    & + label:before {
+      @include icon('unchecked');
+      background-color: $white;
+      border-radius: 5px;
+      color: $silver;
+      margin-right: $icon-spacing;
+    }
+
+    &:focus + label {
+      @extend %elementfocus;
+    }
+
+    &.hide-outline:focus + label {
+      outline: none;
+    }
+
+    &.error + label:before {
+      color: $error-red;
+    }
+
+    html.lt-ie9 & {
+      @include opacity(1);
+      background-color: transparent;
+      position: relative;
+
+      &:focus,
+      &:active {
+        border: 0;
+        outline: none;
+      }
+
+      & + label:before {
+        content: '';
+        display: none;
+      }
+    }
+  }
+
+  &[type='checkbox'] {
+    &:checked + label:before {
+      @include icon('checked');
+    }
+  }
+
+  &[type='radio'] {
+    &:checked + label:before {
+      @include icon('checked-dot');
+    }
+  }
+}
+
+// FILE INPUT BOXES
+label.fileinput.prettify {
+  border: pxtorem(1px) solid normal-color($bodycopy-link-colors);
+  border-radius: pxtorem(2px);
+  display: inline-block;
+  font-weight: normal;
+  height: pxtorem(30px);
+  min-width: 280px;
+  position: relative;
+
+  input[type='file'] {
+    max-width: 280px;
+  }
+
+  &.error {
+    border: pxtorem(1px) solid $error-red;
+  }
+
+  &.focus {
+    @extend %elementfocus;
+  }
+
+  &.disabled {
+    background-color: lighten($silver, 20%);
+    border: pxtorem(1px) solid $silver;
+    color: darken($silver, 15%);
+    pointer-events: none;
+
+    a.button {
+      $rgba: rgba(0, 0, 0, 0.3);
+      background-color: lighten($silver, 15%);
+      box-shadow: inset 0 pxtorem(-1px) $rgba;
+      color: darken($silver, 15%);
+      pointer-events: none;
+    }
+  }
+
+  > div {
+    display: table;
+    left: 1px;
+    position: absolute;
+    top: 1px;
+    width: 100%;
+
+    > span {
+      display: table-cell;
+    }
+
+    span.filetext {
+      color: darken($silver, 15%);
+      max-width: 100px;
+      overflow: hidden;
+      padding: pxtorem(0, 8px);
+      text-overflow: ellipsis;
+      width: 100%;
+
+      &.selected {
+        color: inherit;
+      }
+    }
+  }
+}
+
+.form-type-radio .description,
+.form-type-checkbox .description {
+  margin-left: 0;
+}
+
+// SELECT BOXES
+label.select.prettify {
+  @include button;
+  background-color: $link-button-bg-color;
+  display: inline-block;
+  font-weight: normal;
+  margin-right: 0;
+  position: relative;
+
+  &.focus {
+    @extend %elementfocus;
+  }
+
+  &.error {
+    &:after {
+      border: pxtorem(1px) solid $error-red;
+      border-radius: pxtorem(2px);
+      bottom: -2px;
+      content: '';
+      left: -2px;
+      position: absolute;
+      right: -2px;
+      top: -2px;
+    }
+
+    &.focus {
+      outline-offset: 4px;
+    }
+  }
+
+  &:hover {
+    background-color: lighten($link-button-bg-color, 10%);
+
+    box-shadow: inset 0 pxtorem(-2px) $link-button-bg-color;
+  }
+
+  select {
+    border: 1px solid transparent;
+    bottom: 0;
+    cursor: pointer;
+    height: 100%;
+    left: 0;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 3;
+  }
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:after {
+      @include arrow('down');
+      font-size: 70%;
+      padding-left: pxtorem(10px);
+      vertical-align: pxtorem(1px);
+    }
+  }
+
+  option {
+    html.lt-ie9 & {
+      width: 100%;
+    }
+  }
+}
+
+// PAGEELEMENTS
+/////////////////////////////////////////
+a {
+  color: normal-color($bodycopy-link-colors);
+  text-decoration: none;
+  transition: color 0.1s ease-in-out;
+
+  &:hover {
+    color: hover-color($bodycopy-link-colors);
+    text-decoration: underline;
+  }
+
+  &:focus {
+    @extend %elementfocus;
+  }
+}
+
+ol {
+  counter-reset: olcounter;
+  list-style-position: inside;
+  margin: 0;
+  padding: 0;
+
+  li {
+    list-style-type: none;
+
+    &:before {
+      @extend %fonticon;
+      content: counter(olcounter) '.';
+      counter-increment: olcounter;
+      font-family: $default-font;
+      font-size: $default-font-size;
+      padding: 0 4px;
+    }
+  }
+}

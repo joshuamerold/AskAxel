@@ -1,0 +1,14 @@
+$debug-mode: false;
+
+// Vendor prefixes
+$default-prefixes: webkit, khtml, moz, ms, o;
+
+// Font icons using Icomoon font
+$fonticons: status '\e619', error '\e61a', warning '\e61b', checked '\e00b', unchecked '\e00c', checked-dot '\e00d';
+
+// Various arrows (Open arrows), (Closed arrows)
+$fontarrows: ((down '\e607', up '\e608', left '\e616', right '\e617'), (down '\e610', up '\e60e', left '\e606', right '\e60f'));
+$icon-spacing: 5px;
+
+@import 'theme/config/colors';
+@import 'theme/config/media-grid';

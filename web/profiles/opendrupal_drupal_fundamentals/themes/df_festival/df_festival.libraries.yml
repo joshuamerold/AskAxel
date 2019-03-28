@@ -1,0 +1,7 @@
+main:
+  version: VERSION
+  css:
+    base:
+      static/css/main.css: {}
+  js:
+      static/js/main.js: {}

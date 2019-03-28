@@ -1,0 +1,53 @@
+base:
+  version: VERSION
+  js:
+    static/js/fortytwo.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupal.ajax
+    - core/drupal
+    - core/drupalSettings
+    - core/modernizr
+    - core/underscore
+
+  css:
+    theme:
+      static/css/fortytwo.css: {}
+
+prettify:
+  version: 1.x
+  js:
+    static/js/plugins/prettify.js: {}
+  dependencies:
+    - core/drupalSettings
+
+placeholder:
+  version: 1.x
+  js:
+    static/js/lib/polyfills/placeholder.js: {}
+
+enquire:
+  version: 1.x
+  js:
+    static/js/lib/enquire.js: {}
+
+transit:
+  version: 1.x
+  js:
+    static/js/lib/transit.js: {}
+
+windowsize:
+  version: 1.x
+  js:
+    static/js/plugins/window-size.js: {}
+
+grid:
+  version: 1.x
+  js:
+    static/js/plugins/gridbackgroundview.js: {}
+
+tabs:
+  version: 1.x
+  js:
+    static/js/plugins/collapsibleTabs.js: {}

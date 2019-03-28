@@ -1,0 +1,32 @@
+uuid: d4502490-f7a3-42c6-b249-929bd51d7612
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.news.body
+    - node.type.news
+  module:
+    - text
+    - user
+_core:
+  default_config_hash: javNBQkR2dwSIw_jml2AtAdDIL_7pxD9rnsjTVdW47c
+id: node.news.teaser
+targetEntityType: node
+bundle: news
+mode: teaser
+content:
+  body:
+    label: hidden
+    type: text_summary_or_trimmed
+    weight: 0
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    region: content
+  links:
+    weight: 1
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

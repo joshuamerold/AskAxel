@@ -1,0 +1,320 @@
+//  NO TOUCH HOVE
+//  No hover styles for touch devices
+//
+//  DEPENDENCIES
+//      Modernizr Javascript library
+@mixin no-touch-hover {
+  html.no-touch & {
+    @content;
+  }
+}
+
+//  HIDE TEXT
+//  Hide text within an element. Can be usef for image replacement
+@mixin hide-text {
+  color: transparent;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+}
+
+//  OPACITY
+//  Set the opacity with a few fallbacks for older browsers
+@mixin opacity($value) {
+  filter: alpha(opacity = $value * 100);
+  opacity: $value;
+}
+
+//  ICOMOON
+//  Generates an icon for use in pseudo-elements
+//
+//  TAKES
+//      @parameter name
+//
+//  DEPENDENCIES
+//      $fonticons (defined in _settings.sass)
+//      $default-font-size (defined in _settings.sass)
+
+// Is now deprecated, USE icon mixin instead
+@mixin icomoon($name) {
+  @include icon($name);
+}
+
+//  ICOMOON
+//  Generates an icon for use in pseudo-elements
+//
+//  TAKES
+//      @parameter name
+//
+//  DEPENDENCIES
+//      $fonticons (defined in _settings.sass)
+@mixin icon($name) {
+  @extend %fonticon;
+
+  @each $icon in $fonticons {
+    $itemname: nth($icon, 1);
+    $char: nth($icon, 2);
+
+    @if $name == $itemname {
+      content: $char;
+    }
+  }
+}
+
+//  CALCULATE GRID
+//  Returns the width of a certain column layout in pixels,
+//  it doesn't actually add the 'px' so calculations can be
+//  done afterwards.
+//
+//  TAKES
+//      @parameter cols
+//          number of colomns, default is full amount of columns
+//
+//      @boolean include-gutter
+//
+//  RETURNS
+//       width (px) of element based on given columns
+@function calc-grid($cols: $grid-columns, $include-gutter: false) {
+  $guttervalue: 1;
+
+  @if $include-gutter {
+    $guttervalue: 0;
+  }
+
+  @return $grid-column-width * $cols + $grid-gutter-width * ($cols - $guttervalue);
+}
+
+//  SPAN COLUMNS
+//  Sets pixel width and margin based on given columns
+//
+//  TAKES
+//      @parameter $cols
+//      @parameter $spacing
+@mixin span-columns($cols, $spacing: false) {
+  width: ($grid-column-width + $grid-gutter-width) * $cols - $grid-gutter-width + px;
+
+  @if $spacing == true {
+    margin-right: $grid-gutter-width + px;
+  } @else if $spacing == false {
+    margin-right: 0;
+  }
+}
+
+//  CALCULATE FLUID GRID
+//  Returns the width of a certain column layout in percentages.
+//  Because this is percentage based, we use a master context width
+//  where the percentage is base on.
+//
+//  TAKES
+//      @parameter wrapper-margin
+//          subtracts margin from calculated width
+//
+//      @parameter cols
+//          number of colomns, default is full amount of columns
+//
+//      @boolean include-gutter
+//
+//  DEPENDENCIES
+//       $master-context-width (defined in _settings.sass)
+//
+//  RETURNS
+//       width (%) of element based on given columns
+@function calc-fluid-grid($wrapper-margin: 0, $cols: $grid-columns, $include-gutter: false) {
+  $guttervalue: 1;
+
+  @if $include-gutter {
+    $guttervalue: 0;
+  }
+
+  $context-width: ($grid-column-width + $grid-gutter-width) * $grid-columns - $grid-gutter-width;
+  $target-width: $grid-column-width * $cols + $grid-gutter-width * ($cols - $guttervalue);
+
+  @if $wrapper-margin > 0 {
+    @return 100% * $target-width / $context-width - 100% * $wrapper-margin / $master-context-width;
+  } @else {
+    @return 100% * $target-width / $context-width;
+  }
+}
+
+//  SPAN FLUID COLUMNS
+//  Sets percentage width and margin based on given columns
+//
+//  TAKES
+//      @parameter $cols
+//      @parameter $spacing
+@mixin span-fluid-columns($cols, $spacing: false) {
+  $context-width: ($grid-column-width + $grid-gutter-width) * $grid-columns - $grid-gutter-width;
+  $target-width: ($grid-column-width + $grid-gutter-width) * $cols - $grid-gutter-width;
+
+  width: 100% * $target-width / $context-width;
+
+  @if $spacing == true {
+    margin-right: 100% * $grid-gutter-width / $context-width;
+  } @else if $spacing == false {
+    margin-right: 0;
+  }
+}
+
+//  INLINE LIST
+//  Make an ol,ul list display horizontally
+@mixin inline-list {
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: inline-block;
+    font-size: 100%;
+  }
+}
+
+//  PXTOEM
+//  Calculate percentage with font-size as context
+@function pxtoem($pixels...) {
+  $result: '';
+
+  @each $item in $pixels {
+    $result: $result + ($item + 0) / $default-font-size + em + ' ';
+  }
+
+  @return #{$result};
+}
+
+//  PXTOREM
+//  Calculate percentage with font-size as context
+@function pxtorem($pixels...) {
+  $result: '';
+  @each $item in $pixels {
+    $result: $result + ($item + 0) / $default-font-size + rem + ' ';
+  }
+  @return #{$result};
+}
+
+//  VISUALIZE GRID
+//  Grid settings are set on the font-family property so Javascript can read it
+//  Font-family is the only property that expects a string that can contain anything,
+//  it's a bit dirty but only used for debugging purposes.
+@mixin visualize-grid {
+  div#svg-grid-background {
+    font-family: "{ 'columnWidth' : " + $grid-column-width + ", 'gutterWidth' : " + $grid-gutter-width + ", 'columns' : " + $grid-columns + ", 'masterContextWidth': " + $master-context-width + "}";
+
+    svg {
+      width: calc-grid() + px;
+    }
+  }
+}
+
+@mixin arrow($direction, $type: 'open') {
+  @extend %fonticon;
+
+  $group: nth($fontarrows, 1);
+
+  @if $type == 'closed' {
+    $group: nth($fontarrows, 2);
+  } @else if $type == 'dashed' {
+    $group: nth($fontarrows, 3);
+  }
+
+  @each $icon in $group {
+    $itemname: nth($icon, 1);
+    $char: nth($icon, 2);
+
+    @if $direction == $itemname {
+      content: $char;
+    }
+  }
+}
+
+@function normal-color($value) {
+  @return nth($value, 1);
+}
+
+@function hover-color($value) {
+  @return nth($value, 2);
+}
+
+@function visited-color($value) {
+  @return nth($value, 3);
+}
+
+@function perc($font-size, $basesize: $default-font-size) {
+  @return 100% * $font-size / $basesize;
+}
+
+@mixin flex-order($number) {
+  order: #{$number};
+}
+
+@mixin flex-align($align) {
+  @if $align == 'start' or $align == 'end' {
+    align-items: flex-#{$align};
+  } @else {
+    align-items: #{$align};
+  }
+}
+
+@mixin flex-flow($direction: none, $wrap: none) {
+  @if $wrap != none {
+    flex-wrap: #{$wrap};
+  }
+  @if $direction != none {
+    flex-direction: #{$direction};
+  }
+}
+
+@mixin flex-grow($value) {
+  flex-grow: #{$value};
+}
+
+@mixin flex-shrink($value) {
+  flex-shrink: #{$value};
+}
+
+@mixin flex-child($value) {
+  flex: #{$value};
+}
+
+@mixin flex($wrap: none, $justify: none, $align: none, $flow: none, $direction: none, $inline: none) {
+  @if $inline != none {
+    display: inline-flex;
+  } @else {
+    display: flex;
+  }
+  @if $direction != none {
+    flex-direction: #{$direction};
+  }
+  @if $wrap != none {
+    flex-wrap: #{$wrap};
+  }
+  @if $align != none {
+    align-items: #{$align};
+  }
+  @if $justify != none {
+    justify-content: #{$justify};
+  }
+}
+
+%clearfix {
+  &:after {
+    clear: both;
+    content: '';
+    display: table;
+  }
+}
+
+%firefox-input-fix {
+  border: 0;
+  margin-bottom: pxtorem(-2px);
+  margin-top: pxtorem(-2px);
+  padding: 0;
+}
+
+%fonticon {
+  font-family: 'icomoon';
+  font-size: inherit;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  line-height: 1;
+  speak: none;
+  text-transform: none;
+}

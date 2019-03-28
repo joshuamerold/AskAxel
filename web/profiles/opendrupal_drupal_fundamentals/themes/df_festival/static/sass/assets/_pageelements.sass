@@ -1,0 +1,395 @@
+input, a, button, textarea
+  -webkit-appearance: none
+  &:focus
+    @extend %elementfocus
+
+*::-webkit-input-placeholder
+  color: darken($silver, 15%)
+
+*:-moz-placeholder
+  color: darken($silver, 15%)
+
+*::-moz-placeholder
+  color: darken($silver, 15%)
+
+*:-ms-input-placeholder
+  color: darken($silver, 15%)
+
+label[for*=disabled]
+  color: darken($silver, 15%)
+
+=button
+  +bvp(border-radius, pxtoem(3px))
+  +bvp(transition, color 0.1s ease-in-out, background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out)
+  display: inline-block
+
+  line-height: pxtoem($default-line-height / 1.5)
+  padding: pxtoem(5px, 8px, 5px, 8px)
+  cursor: pointer
+
+  color: white
+  background-color: $button-bg-color
+
+  border: none
+  -webkit-appearance: none
+  text-decoration: none
+
+  font-family: $default-font
+  font-style: normal
+  vertical-align: baseline
+
+  &:hover
+    text-decoration: none
+    background-color: lighten($button-bg-color, 10%)
+
+  &:visited
+    color: white
+
+  &.disabled:hover,
+  &.disabled
+    background-color: lighten($silver, 15%)
+    +bvp(box-shadow, inset 0px pxtoem(-1px) rgba(0, 0, 0, 0.3))
+    color: darken($silver, 15%)
+    pointer-events: none
+
+// BUTTONS
+button,
+input[type="submit"],
+input[type="button"],
+a.button
+  +button
+  margin-right: pxtoem(3px)
+
+input[type="file"]::-webkit-file-upload-button
+  +button
+
+input[type="button"]::-moz-focus-inner
+  @extend %firefox-input-fix
+
+input[type="submit"]::-moz-focus-inner
+  @extend %firefox-input-fix
+
+a.button:hover
+  color: white
+
+label.select.prettify,
+div.password-suggestions,
+div.alert,
+input, textarea, fieldset
+  +bvp(border-radius, pxtoem(2px))
+
+span.form-required
+  color: $error-red
+  font-weight: bold
+
+// TEXT INPUTS
+input, textarea
+  padding: pxtoem(5px, 8px, 5px, 8px)
+  border: pxtoem(1px) solid normal-color($bodycopy-link-colors)
+
+  &.error
+    border: pxtoem(1px) solid $error-red
+
+  .form-item &
+    &.error
+      border: pxtoem(1px) solid $error-red
+
+input[type="file"]
+  padding: pxtoem(1px, 0, 1px, 1px)
+
+  &.hide-outline::-webkit-file-upload-button
+    outline: none !important
+
+input[type="file"]::-webkit-file-upload-button
+  cursor: default
+
+input:-webkit-autofill
+  -webkit-box-shadow: 0 0 0 100em $webkit-autofill-color inset
+
+input[disabled]
+  border: pxtoem(1px) solid $silver
+  background-color: lighten($silver, 15%)
+
+fieldset
+  margin-top: pxtoem(10px)
+  padding: pxtoem(3px, 10px, 12px, 10px)
+
+  legend
+    padding: pxtoem(0, 5px)
+    white-space: nowrap
+
+  html.js &
+    &.collapsible
+
+      .fieldset-legend
+        background-image: none
+        padding-left: 0
+
+        &:before
+          +arrow("down")
+          display: inline-block
+          width: 14px
+          height: 14px
+          font-size: perc(12px)
+
+      &.collapsed
+        border-left: pxtoem(1px) solid transparent
+
+        .fieldset-legend
+          &:before
+            +bvp(transform, rotate(-90deg))
+            vertical-align: 3px
+
+      a.fieldset-title
+        padding-left: pxtoem(3px)
+
+.password-confirm > span
+  font-weight: bold
+  text-transform: uppercase
+
+.password-indicator
+  +bvp(border-radius, pxtoem(2px))
+  div
+    background-color: $message-status
+    +bvp(border-radius, pxtoem(2px))
+
+// MESSAGES
+div.alert
+  padding: pxtoem(10px)
+  background-image: none
+  color: #FFFFFF
+  border: none
+
+  .krumo-root
+    color: #000000
+
+  > ul
+    display: inline-block
+    margin: 0
+
+  &:before
+    padding-right: pxtoem(10px)
+    float: left
+    margin-top: pxtoem(1px)
+
+  &.alert-warning
+    background-color: $message-warning
+
+    &:before
+      +icomoon("warning")
+
+  &.alert-info
+    background-color: $message-status
+
+    &:before
+      +icomoon("status")
+
+  &.alert-danger
+    background-color: $message-error
+
+    &:before
+      +icomoon("error")
+
+// INPUT CHECKBOXES
+input[type=checkbox]:checked + label,
+input[type=radio]:checked + label
+  color: $checked-color
+
+  &:before
+    color: $checked-color
+
+input
+  &[type=radio],
+  &[type=checkbox]
+    +opacity(0)
+    position: absolute
+    cursor: pointer
+
+    & + label
+      cursor: pointer
+
+    & + label:before
+      +icon("unchecked")
+      margin-right: $icon-spacing
+      background-color: white
+      +bvp(border-radius, 5px)
+      color: $silver
+
+    &:focus + label
+      @extend %elementfocus
+
+    &.hide-outline:focus + label
+      outline: none !important
+
+    &.error + label:before
+      color: $error-red
+
+    html.lt-ie9 &
+      +opacity(1)
+      position: relative
+      background-color: transparent
+
+      &:focus,
+      &:active
+        border: none
+        outline: none
+
+      & + label:before
+        content: ""
+        display: none
+
+  &[type=checkbox]
+    &:checked + label:before
+      +icon("checked")
+
+  &[type=radio]
+    &:checked + label:before
+      +icon("checked-dot")
+
+// FILE INPUT BOXES
+label.fileinput.prettify
+  display: inline-block
+  border: pxtoem(1px) solid normal-color($bodycopy-link-colors)
+  +bvp(border-radius, pxtoem(2px))
+  height: pxtoem(30px)
+  position: relative
+  font-weight: normal
+  min-width: 280px
+
+  input[type=file]
+    max-width: 280px
+
+  &.error
+    border: pxtoem(1px) solid $error-red
+
+  &.focus
+    @extend %elementfocus
+
+  &.disabled
+    border: pxtoem(1px) solid $silver
+    background-color: lighten($silver, 20%)
+    color: darken($silver, 15%)
+    pointer-events: none
+
+    a.button
+      background-color: lighten($silver, 15%)
+      +bvp(box-shadow, inset 0px pxtoem(-1px) rgba(0, 0, 0, 0.3))
+      color: darken($silver, 15%)
+      pointer-events: none
+
+  > div
+    position: absolute
+    top: 1px
+    left: 1px
+    display: table
+    width: 100%
+
+    > span
+      display: table-cell
+
+    span.filetext
+      width: 100%
+      overflow: hidden
+      text-overflow: ellipsis
+      padding: pxtoem(0px, 8px, 0px, 8px)
+      max-width: 100px
+      color: darken($silver, 15%)
+
+      &.selected
+        color: inherit
+
+.form-type-radio .description,
+.form-type-checkbox .description
+  margin-left: 0
+
+// SELECT BOXES
+label.select.prettify
+  @extend a.button
+  background-color: $link-button-bg-color
+  display: inline-block
+  position: relative
+  font-weight: normal
+  margin-right: 0
+
+  &.focus
+    @extend %elementfocus
+
+  &.error
+    &:after
+      content: ""
+      border: pxtoem(1px) solid $error-red
+      +bvp(border-radius, pxtoem(2px))
+      position: absolute
+      left: -2px
+      right: -2px
+      top: -2px
+      bottom: -2px
+
+    &.focus
+      outline-offset: 4px
+
+  &:hover
+    background-color: lighten($link-button-bg-color, 10%)
+    +bvp(box-shadow, inset 0px pxtoem(-2px) $link-button-bg-color)
+
+  select
+    -webkit-appearance: none
+    bottom: 0
+    cursor: pointer
+    left: 0
+    position: absolute
+    right: 0
+    top: 0
+    width: 100%
+    z-index: 3
+    padding: 0
+    border: 1px solid transparent
+    height: 100%
+
+  span
+    display: block
+    white-space: nowrap
+    text-overflow: ellipsis
+    overflow: hidden
+
+    &:after
+      +arrow("down")
+      //padding-left: $icon-spacing
+      font-size: 70%
+      vertical-align: pxtoem(1px)
+      padding-left: pxtoem(10px)
+
+  option
+    html.lt-ie9 &
+      width: 100%
+
+// PAGEELEMENTS
+/////////////////////////////////////////
+a
+  text-decoration: none
+  color: normal-color($bodycopy-link-colors)
+  +bvp(transition, color 0.1s ease-in-out)
+
+  &:hover
+    text-decoration: underline
+    color: hover-color($bodycopy-link-colors)
+
+  &:focus
+    @extend %elementfocus
+
+ol
+  margin: 0
+  padding: 0
+  list-style-position: inside
+  counter-reset: olcounter
+
+  li
+    list-style-type: none
+
+    &:before
+      @extend %fonticon
+      font-size: $default-font-size
+      content: counter(olcounter) "."
+      counter-increment: olcounter
+      padding: 0 4px
+      font-family: $default-font

@@ -1,0 +1,315 @@
+%clearfix
+  &:after
+    content: ""
+    display: table
+    clear: both
+
+%firefox-input-fix
+  border: 0
+  padding: 0
+  margin-top: pxtoem(-2px)
+  margin-bottom: pxtoem(-2px)
+
+%fonticon
+  font-family: 'icomoon'
+  speak: none
+  font-style: normal
+  font-weight: normal
+  font-variant: normal
+  text-transform: none
+  line-height: 1
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  font-size: inherit
+
+//  BUILD VENDOR PREFIXES
+//  Builds css PROPERTIES with vendor prefixes
+//
+//  TAKES
+//      @parameter property
+//      @parameter value
+//
+//  DEPENDENCIES
+//      $default-prefixes (defined in _settings.sass)
+//
+//  EXAMPLE
+//      +bvp( box-shadow, 0px 0px 5px 0px rgba( 0, 0, 0, 0.1 ))
+//
+//  SETS
+//      webkit-box-shadow: 0px 0px 5px 0px rgba( 0,0,0,0.1 );
+//      -khtml-box-shadow: 0px 0px 5px 0px rgba( 0,0,0,0.1 );
+//      -moz-box-shadow: 0px 0px 5px 0px rgba( 0,0,0,0.1 );
+//      -ms-box-shadow: 0px 0px 5px 0px rgba( 0,0,0,0.1 );
+//      -o-box-shadow: 0px 0px 5px 0px rgba( 0,0,0,0.1 );
+//      box-shadow: 0px 0px 5px 0px rgba( 0,0,0,0.1 );
+
+=bvp($property, $value...)
+  @each $prefix in $default-prefixes
+    #{$prefix}-#{$property}: #{$value}
+  #{$property}: #{$value}
+
+//  BUILD VALUE VENDOR PREFIXES
+//  Builds css PROPERTIES with vendor prefixes
+//
+//  TAKES
+//      @parameter property
+//      @parameter value
+//
+//  DEPENDENCIES
+//      $default-prefixes (defined in _settings.sass)
+//
+//  EXAMPLE
+//      +bvvp( background-image, linear-gradient( top, red 0%, lime 50%, blue 100% ))
+//
+//  SETS
+//      background-image: -webkit-linear-gradient(top, red 0%, lime 50%, blue 100%);
+//      background-image: -khtml-linear-gradient(top, red 0%, lime 50%, blue 100%);
+//      background-image: -moz-linear-gradient(top, red 0%, lime 50%, blue 100%);
+//      background-image: -ms-linear-gradient(top, red 0%, lime 50%, blue 100%);
+//      background-image: -o-linear-gradient(top, red 0%, lime 50%, blue 100%);
+//      background-image: linear-gradient(top, red 0%, lime 50%, blue 100%);
+
+=bvvp($property, $value...)
+  @each $prefix in $default-prefixes
+    #{$property}: -#{$prefix}-#{$value}
+
+// Same as the above, different name
+=vvp($property, $value...)
+  @each $prefix in $default-prefixes
+    #{$property}: -#{$prefix}-#{$value}
+
+//  NO TOUCH HOVE
+//  No hover styles for touch devices
+//
+//  DEPENDENCIES
+//      Modernizr Javascript library
+=no-touch-hover()
+  html.no-touch &
+    @content
+
+//  HIDE TEXT
+//  Hide text within an element. Can be usef for image replacement
+=hide-text()
+  text-indent: 100%
+  white-space: nowrap
+  overflow: hidden
+  color: transparent
+
+//  LINEAR GRADIENT
+//  Can take multiple color-stops to render a gradient.
+//
+//  TAKES
+//      @parameter args
+=linear-gradient($args...)
+  $gradient: ()
+  $pos: nth($args, 1)
+  $pos_newsyntax: ()
+
+  @if ($pos != "top") and ($pos != "right") and ($pos != "bottom") and ($pos != "left") and ($pos != "to top") and ($pos != "to right") and ($pos != "to bottom") and ($pos != "to left")
+    $pos: "top"
+
+  // New Syntax
+  @if $pos == "top"
+    $pos_newsyntax: "to bottom"
+
+  @else if $pos == "right"
+    $pos_newsyntax: "to left"
+
+  @else if $pos == "bottom"
+    $pos_newsyntax: "to top"
+
+  @else if $pos == "left"
+    $pos_newsyntax: "to right"
+
+  @each $g in $args
+    @if ($g != "top") and ($g != "right") and ($g != "bottom") and ($g != "left") and ($g != "to top") and ($g != "to right") and ($g != "to bottom") and ($g != "to left")
+      $gradient: append($gradient, $g, comma)
+
+  +bvvp(background-image, linear-gradient(#{$pos}, $gradient))
+  background-image: #{ "linear-gradient( #{$pos_newsyntax}, #{$gradient} )"}
+
+//  OPACITY
+//  Set the opacity with a few fallbacks for older browsers
+=opacity($value)
+  filter: alpha(opacity=$value * 100)
+  -moz-opacity: $value
+  -khtml-opacity: $value
+  opacity: $value
+
+//  ICOMOON
+//  Generates an icon for use in pseudo-elements
+//
+//  TAKES
+//      @parameter name
+//
+//  DEPENDENCIES
+//      $fonticons (defined in _settings.sass)
+//      $default-font-size (defined in _settings.sass)
+
+// Is now deprecated, USE icon mixin instead
+=icomoon($name)
+  +icon($name)
+
+//  ICOMOON
+//  Generates an icon for use in pseudo-elements
+//
+//  TAKES
+//      @parameter name
+//
+//  DEPENDENCIES
+//      $fonticons (defined in _settings.sass)
+=icon($name)
+  @extend %fonticon
+
+  @each $icon in $fonticons
+    $itemname: nth($icon, 1)
+    $char: nth($icon, 2)
+
+    @if $name == $itemname
+      content: $char
+
+//  CALCULATE GRID
+//  Returns the width of a certain column layout in pixels,
+//  it doesn't actually add the 'px' so calculations can be
+//  done afterwards.
+//
+//  TAKES
+//      @parameter cols
+//          number of colomns, default is full amount of columns
+//
+//      @boolean include-gutter
+//
+//  RETURNS
+//       width (px) of element based on given columns
+@function calc-grid($cols: $grid-columns, $include-gutter: false)
+  $guttervalue: 1
+
+  @if $include-gutter
+    $guttervalue: 0
+
+  @return ($grid-column-width * $cols) + ($grid-gutter-width * ($cols - $guttervalue))
+
+//  SPAN COLUMNS
+//  Sets pixel width and margin based on given columns
+//
+//  TAKES
+//      @parameter $cols
+//      @parameter $spacing
+=span-columns($cols, $spacing: true)
+  width: ($grid-column-width + $grid-gutter-width) * $cols - $grid-gutter-width + px
+
+  @if $spacing == true
+    margin-right: $grid-gutter-width + px
+  @else if $spacing == false
+    margin-right: 0
+
+//  CALCULATE FLUID GRID
+//  Returns the width of a certain column layout in percentages.
+//  Because this is percentage based, we use a master context width
+//  where the percentage is base on.
+//
+//  TAKES
+//      @parameter wrapper-margin
+//          subtracts margin from calculated width
+//
+//      @parameter cols
+//          number of colomns, default is full amount of columns
+//
+//      @boolean include-gutter
+//
+//  DEPENDENCIES
+//       $master-context-width (defined in _settings.sass)
+//
+//  RETURNS
+//       width (%) of element based on given columns
+@function calc-fluid-grid($wrapper-margin: 0, $cols: $grid-columns, $include-gutter: false)
+  $guttervalue: 1
+
+  @if $include-gutter
+    $guttervalue: 0
+
+  $context-width: ($grid-column-width + $grid-gutter-width) * $grid-columns - $grid-gutter-width
+  $target-width: ($grid-column-width * $cols) + ($grid-gutter-width * ($cols - $guttervalue))
+
+  @if $wrapper-margin > 0
+    @return ((100% * $target-width) / $context-width) - ((100% * $wrapper-margin) / $master-context-width)
+  @else
+    @return (100% * $target-width) / $context-width
+
+//  SPAN FLUID COLUMNS
+//  Sets percentage width and margin based on given columns
+//
+//  TAKES
+//      @parameter $cols
+//      @parameter $spacing
+=span-fluid-columns($cols, $spacing: true)
+  $context-width: ($grid-column-width + $grid-gutter-width) * $grid-columns - $grid-gutter-width
+  $target-width: ($grid-column-width + $grid-gutter-width) * $cols - $grid-gutter-width
+
+  width: (100% * $target-width) / $context-width
+
+  @if $spacing == true
+    margin-right: (100% * $grid-gutter-width) / $context-width
+  @else if $spacing == false
+    margin-right: 0
+
+//  INLINE LIST
+//  Make an ol,ul list display horizontally
+=inline-list()
+  margin: 0
+  padding: 0
+
+  li
+    display: inline-block
+    font-size: 100%
+
+//  PXTOEM
+//  Calculate percentage with font-size as context
+@function pxtoem($pixels...)
+  $result: ""
+  @each $item in $pixels
+    $result: $result + (($item + 0px) / $default-font-size) + em + " "
+
+  @return #{$result}
+
+//  VISUALIZE GRID
+//  Grid settings are set on the font-family property so Javascript can read it
+//  Font-family is the only property that expects a string that can contain anything,
+//  it's a bit dirty but only used for debugging purposes.
+=visualize-grid()
+  div#svg-grid-background
+    font-family: "{ 'columnWidth' : " + $grid-column-width + ", 'gutterWidth' : " + $grid-gutter-width + ", 'columns' : " + $grid-columns + ", 'masterContextWidth': " + $master-context-width + "}"
+
+    svg
+      width: calc-grid() + px
+      rect:nth-child( n + #{$grid-columns + 1} )
+        fill: rgba(0, 0, 0, 0)
+
+=arrow($direction, $type: "open")
+  @extend %fonticon
+
+  $group: nth($fontarrows, 1)
+
+  @if $type == "closed"
+    $group: nth($fontarrows, 2)
+  @else if $type == "dashed"
+    $group: nth($fontarrows, 3)
+
+  @each $icon in $group
+    $itemname: nth($icon, 1)
+    $char: nth($icon, 2)
+
+    @if $direction == $itemname
+      content: $char
+
+@function normal-color($value)
+  @return nth($value, 1)
+
+@function hover-color($value)
+  @return nth($value, 2)
+
+@function visited-color($value)
+  @return nth($value, 3)
+
+@function perc($font-size, $basesize: $default-font-size)
+  @return (100% * $font-size) / $basesize

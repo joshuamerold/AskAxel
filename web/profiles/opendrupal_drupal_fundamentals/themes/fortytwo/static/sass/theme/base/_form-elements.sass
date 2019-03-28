@@ -1,0 +1,123 @@
+input, textarea, button, a.button
+  &:focus
+    border: 1px solid $input-focus-border-color
+    outline: none
+
+select
+  font-size: 87.5%
+
+  &:focus
+    outline: 1px dotted $input-focus-border-color
+
+input,
+button,
+textarea,
+a.button
+  background-color: white
+  text-decoration: none
+  color: inherit
+  padding: pxtoem(2) pxtoem(8)
+  background-color: white
+  border: 1px solid $button-border-color
+  display: inline-block
+
+input:-webkit-autofill
+  -webkit-box-shadow: 0 0 0 100em $webkit-autofill-color inset
+
+textarea
+  width: pxtoem(250)
+  height: pxtoem(100)
+  resize: none
+  padding: pxtoem(5)
+
+input,
+button,
+a.button
+  height: pxtoem(30)
+
+textarea,
+input
+  +bvp(border-radius, $input-border-radius)
+
+// Fieldset
+fieldset
+  border: 1px dotted $fieldset-border-color
+  display: inline
+
+  legend
+    padding: 0 pxtoem(5)
+
+// radio buttons & checkboxes
+input[type=checkbox],
+input[type=radio]
+  height: auto
+  border: none
+
+  &:focus
+    outline: 1px dotted $input-focus-border-color
+
+input[type=checkbox]:checked + label,
+input[type=radio]:checked + label
+  color: $checked-color
+
+input.prettify
+  &[type=radio],
+  &[type=checkbox]
+    +opacity(0)
+    position: absolute
+
+    & + label:before
+      +icomoon("unchecked")
+      padding-right: $icon-spacing
+      color: $check-icon-color
+
+    &:focus + label:before
+      color: $checked-color
+
+    html.lt-ie9 &
+      +opacity(1)
+      position: relative
+
+      & + label:before
+        content: ""
+        display: none
+
+  &[type=checkbox]
+    &:checked + label:before
+      +icomoon("checked")
+
+  &[type=radio]
+    &:checked + label:before
+      +icomoon("checked-dot")
+
+// buttons
+input[type='button'],
+input[type='reset'],
+input[type='submit'],
+button,
+a.button
+  line-height: pxtoem(25)
+  +bvp(border-radius, $button-border-radius)
+  background-color: $button-background-color
+
+  &:hover
+    border: 1px solid $button-border-hover-color
+    color: $button-font-color
+
+  &.arrowright
+    &.before:before
+      +icomoon("arrow-right")
+      padding-right: $icon-spacing
+
+    &.after:after
+      +icomoon("arrow-right")
+      padding-left: $icon-spacing
+
+  &.arrowleft
+    &.before:before
+      +icomoon("arrow-left")
+      padding-right: $icon-spacing
+
+    &.after:after
+      +icomoon("arrow-left")
+      padding-left: $icon-spacing

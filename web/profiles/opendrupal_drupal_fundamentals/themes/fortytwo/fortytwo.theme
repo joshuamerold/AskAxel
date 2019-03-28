@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * Functions to support theming in the Fortytwo theme.
+ */
+
+require_once dirname(__FILE__) . '/includes/fortytwo.inc';
+include_once dirname(__FILE__) . '/includes/bootstrap.inc';

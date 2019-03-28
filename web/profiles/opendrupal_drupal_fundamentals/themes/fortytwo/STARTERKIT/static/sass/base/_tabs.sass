@@ -1,0 +1,26 @@
+.tabs
+  margin: 20px 0 0
+
+  ul
+    margin: 0
+    @extend %clearfix
+    border-bottom: 2px solid $button-border-color
+
+    li
+      display: inline-block
+      a
+        color: $button-font-color
+        background: $page-background-color
+        border: 2px solid $button-border-color
+        border-bottom: 0
+        display: block
+        padding: 4px 10px
+        font:
+          size: $button-font-size
+
+        &:hover
+          background: $button-background-color
+
+        &.active
+          background: $button-background-color
+          border-bottom: 0

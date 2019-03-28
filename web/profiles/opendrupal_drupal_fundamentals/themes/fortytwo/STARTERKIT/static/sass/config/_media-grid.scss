@@ -1,0 +1,45 @@
+// Grid settings
+$default-grid-columns: 12;
+$default-grid-column-width: 75;
+$default-grid-gutter-width: 30;
+
+$master-context-width: $default-grid-column-width * $default-grid-columns + $default-grid-gutter-width * ($default-grid-columns - 1);
+
+//  The canvas width with the settings above is 1218px,
+//  if you alter the values, make sure the canvas width
+//  always calculates below 1247px. Otherwise you have to
+//  change the media queries below.
+//
+//  For example the bootstrap grid system value:
+//  $grid-columns: 12
+//  $grid-column-width: 75
+//  $grid-gutter-width: 30
+//
+//  This will calculate in a canvas width of:
+//  (12 * (75 + 30)) - 30 = 1230px
+
+// media queries
+$mobile: 'screen and (min-width: 0px) and (max-width: 767px)';
+$mobile-p: 'screen and (min-width: 0px) and (max-width: 479px)';
+$mobile-l: 'screen and (min-width: 480px) and (max-width: 767px)';
+
+$tablet: 'screen and (min-width: 768px) and (max-width: 1247px)';
+$tablet-p: 'screen and (min-width: 768px) and (max-width: 1001px)';
+$tablet-l: 'screen and (min-width: 1002px) and (max-width: 1229px)';
+
+$desktop: 'screen and (min-width: 1230px)';
+
+// Media queries debug settings.
+$mobile-p-identifier-color: $sunflower;
+$mobile-p-identifier-text: 'XS - MOBILE PORTRAIT';
+$mobile-l-identifier-color: $nepgritis;
+$mobile-l-identifier-text: 'S - MOBILE LANDSCAPE';
+$tablet-p-identifier-color: $belizehole;
+$tablet-p-identifier-text: 'M - TABLET PORTRAIT';
+$tablet-l-identifier-color: $amethyst;
+$tablet-l-identifier-text: 'L - TABLET LANDSCAPE';
+$desktop-identifier-color: $pomegranate;
+$desktop-identifier-text: 'XL - DESKTOP';
+
+// PAGE ELEMENTS SETTINGS
+$grid-transparency: 8;

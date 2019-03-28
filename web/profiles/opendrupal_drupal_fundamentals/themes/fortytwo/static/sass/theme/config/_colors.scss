@@ -1,0 +1,43 @@
+// Basic colors
+$red: #FF0000;
+$white: #FFFFFF;
+$black: #000000;
+$silver: #C0C0C0;
+$page-background-color: $white;
+$page-font-color: #3B3B3B;
+
+// Grid debug colors
+$pomegranate: #C0392B;
+$amethyst: #9B59B6;
+$belizehole: #2980B9;
+$nepgritis: #27AE60;
+$sunflower: #F1C40F;
+
+$default-font-size: 16px;
+$default-line-height: 24px;
+
+// mark-tag
+$mark-background-color: #ffff00;
+$mark-font-color: $black;
+
+$border-radius: 2px;
+
+// Inputs
+$input-focus-border-color: #4169e1;
+$input-border-radius: $border-radius;
+$webkit-autofill-color: #F0FEFF;
+
+// Buttons
+$button-border-color: #c0c0c0;
+$button-border-hover-color: #ff4500;
+$button-font-color: darken($button-border-hover-color, 10%);
+$button-border-radius: $border-radius;
+$button-font-size: $default-font-size;
+$button-background-color: #f5f5f5;
+
+// Fieldset
+$fieldset-border-color: $button-border-color;
+
+// radio & checkboxes
+$checked-color: $input-focus-border-color;
+$check-icon-color: #808080;

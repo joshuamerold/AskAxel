@@ -1,0 +1,26 @@
+name: Drupal Fundamentals Festival
+type: theme
+description: 'Festival Theme for Open Drupal Drupal Fundamentals course materials.'
+base theme: fortytwo
+core: 8.x
+
+libraries:
+  - df_festival/main
+
+stylesheets-remove:
+  - '@fortytwo/static/css/fortytwo.css'
+
+regions:
+  header: Header
+  primary_menu: 'Primary menu'
+  secondary_menu: 'Secondary menu'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  highlighted: Highlighted
+  featured_top: 'Featured top'
+  breadcrumb: Breadcrumb
+  content: Content
+  sidebar_first: 'Sidebar first'
+  sidebar_second: 'Sidebar second'
+  footer: 'Footer'
+

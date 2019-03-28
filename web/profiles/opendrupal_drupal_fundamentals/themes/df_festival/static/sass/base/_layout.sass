@@ -1,0 +1,70 @@
+html, body
+  height: 100%
+  font-family: $default-font
+  line-height: pxtoem($default-line-height)
+  background-image: url('../images/bg.jpg')
+  background-repeat: no-repeat
+  background-attachment: fixed
+  background-size: cover
+
+a
+  text-decoration: none
+
+li.node-readmore a:after
+  +icomoon("caret-right")
+  font-size: 50%
+  vertical-align: 1px
+
+h1, h2, h3, h4, h5, h6
+  margin: 0 0 5px 0
+  font-family: $default-font
+
+h1
+  line-height: 50px
+
+.wrapper
+  background: $wrappercolor
+  overflow: hidden
+  margin-top: 60px !important
+
+
+
+  .content.column
+    padding: 10px
+
+  .node--type-act &
+    .field-begin-en-eindtijd,
+    .field-podium
+      display: inline-block
+      width: 50%
+      float: left
+      margin: 20px 0
+      font-weight: bold
+      color: $page-background-color
+
+      > div
+        &:first-child:after
+          content: ": "
+      div
+        display: inline
+
+  .list-programma.view
+    .view-content
+      display: flex
+      flex-wrap: wrap
+
+      .views-row
+        width: 50%
+        padding: 0 10px 30px 0
+        &:nth-child(even)
+          padding: 0 0 30px 10px
+
+        .views-field-title
+          padding: 10px 0
+          text-align: center
+          font-size: 24px
+
+
+        img
+          width: 100%
+          height: auto

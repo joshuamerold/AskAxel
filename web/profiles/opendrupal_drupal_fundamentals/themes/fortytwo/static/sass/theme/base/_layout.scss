@@ -1,0 +1,179 @@
+div#svg-grid-background,
+div.responsive-identifier {
+  display: none;
+}
+
+body.show-responsive-identifier {
+  div.responsive-identifier {
+    bottom: 0;
+    display: block;
+    font-weight: bold;
+    left: 0;
+    padding: 4px;
+    position: fixed;
+    text-align: center;
+    width: 100%;
+    z-index: 10;
+  }
+}
+
+body.show-grid {
+  div#svg-grid-background {
+    bottom: 0;
+    display: block;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+
+    > svg {
+      display: block;
+      margin: 0 auto;
+
+      rect {
+        @media #{$desktop} {
+          $rgba: rgba($desktop-identifier-color, 0.12);
+          fill: $rgba;
+        }
+
+        @media #{$tablet-l} {
+          $rgba: rgba($tablet-l-identifier-color, 0.12);
+          fill: $rgba;
+        }
+
+        @media #{$tablet-p} {
+          $rgba: rgba($tablet-p-identifier-color, 0.12);
+          fill: $rgba;
+        }
+
+        @media #{$mobile-l} {
+          $rgba: rgba($mobile-l-identifier-color, 0.12);
+          fill: $rgba;
+        }
+
+        @media #{$mobile-p} {
+          $rgba: rgba($mobile-p-identifier-color, 0.12);
+          fill: $rgba;
+        }
+      }
+    }
+  }
+
+  &.toolbar-vertical.toolbar-tray-open div#svg-grid-background {
+    left: 15rem;
+  }
+}
+
+html, body {
+  -moz-osx-font-smoothing: grayscale; // sass-lint:disable-line no-vendor-prefixes
+  -webkit-font-smoothing: antialiased; // sass-lint:disable-line no-vendor-prefixes
+}
+
+body {
+  @if $debug-mode {
+    .content.column {
+      $rgba: rgba($pomegranate, 0.2);
+      background-color: $rgba;
+    }
+
+    .sidebar.first {
+      $rgba: rgba($amethyst, 0.2);
+      background-color: $rgba;
+    }
+
+    .sidebar.second {
+      $rgba: rgba($belizehole, 0.2);
+      background-color: $rgba;
+    }
+  }
+
+  > div.wrapper,
+  .main-wrapper {
+    @include flex('wrap', 'space-between', 'stretch');
+    margin: 0 auto;
+  }
+
+  // Layout with two sidebars and the main column in the middle
+  &.columns-middle {
+    .content.column {
+      order: 2;
+    }
+
+    .sidebar {
+      &.first {
+        order: 1;
+      }
+
+      &.second {
+        order: 3;
+      }
+    }
+
+    &.one-sidebar.sidebar-second {
+      .content.column {
+        order: 1;
+      }
+
+      .sidebar.second {
+        order: 2;
+      }
+    }
+  }
+
+  // Layout with two sidebars and the main column on the right
+  &.columns-left {
+    .content.column {
+      order: 3;
+    }
+
+    .sidebar.first {
+      order: 1;
+    }
+
+    .sidebar.second {
+      order: 2;
+    }
+  }
+
+  // Layout with two sidebars and the main column on the left
+  &.columns-right {
+    .content.column {
+      order: 1;
+    }
+
+    .sidebar {
+      &.first {
+        order: 2;
+      }
+
+      &.second {
+        order: 3;
+      }
+    }
+  }
+}
+
+nav,
+header,
+footer {
+  clear: both;
+  margin: 0 auto;
+}
+
+#breadcrumbs {
+  ol {
+    @include inline-list;
+
+    li {
+      &:before {
+        content: attr(data-icon);
+        margin-left: 5px;
+      }
+
+      &:first-child:before {
+        display: none;
+      }
+    }
+  }
+}

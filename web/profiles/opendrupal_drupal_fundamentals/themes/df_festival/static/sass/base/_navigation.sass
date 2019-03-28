@@ -1,0 +1,29 @@
+nav ul
+  +inline-list
+
+.navigation
+  margin-bottom: 10px
+  nav
+    > ul
+      display: flex
+      li
+        display: block
+        a
+          display: inline-block
+          background: $wrappercolor
+          padding: 5px 10px
+          margin-right: 10px
+          border: 2px solid #FFFFFF
+
+          &.is-active
+            background: $page-background-color
+            color: #FFFFFF
+
+          &:hover
+            text-decoration: none
+            background: rgba(#FFFFFF, 0.6)
+            color: #FFFFFF
+        ul
+          display: flex
+          margin-top: 10px
+          position: absolute

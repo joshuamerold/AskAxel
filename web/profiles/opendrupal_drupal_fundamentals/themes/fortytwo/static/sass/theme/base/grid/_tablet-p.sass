@@ -1,0 +1,128 @@
+// TABLET PORTRAIT
+
+$grid-columns: 12
+$grid-column-width: 44
+$grid-gutter-width: 20
+
+@media #{$tablet-p}
+  body.show-responsive-identifier
+    .responsive-identifier
+      background: $tablet-p-identifier-color
+      &:after
+        content: $tablet-p-identifier-text
+
+  // adaptive layout calculations
+  body.layout-adaptive
+    &.show-grid
+      +visualize-grid
+
+    .navigation nav,
+    header,
+    footer,
+    div.wrapper
+      width: calc-grid() + px
+
+    &.columns-right .content.column
+      +span-columns(8)
+
+    &.columns-middle .sidebar.second,
+    &.columns-middle .content.column,
+    &.columns-left .content.column
+      +span-columns(8, false)
+
+    &.columns-left .sidebar.first,
+    &.columns-left .sidebar.second,
+    &.columns-middle .sidebar.first
+      +span-columns(4)
+
+    &.columns-right .sidebar.first,
+    &.columns-right .sidebar.second
+      +span-columns(4, false)
+
+    &.columns-middle
+      .sidebar.second
+        position: relative
+        right: auto
+
+    &.one-sidebar
+      &.columns-right.sidebar-first,
+      &.columns-middle.sidebar-second
+        .content.column
+          +span-columns(8, true)
+
+        .sidebar.second
+          +span-columns(4, false)
+
+    // no sidebars layout
+    &.no-sidebars
+      &.columns-middle .content.column,
+      &.columns-right .content.column,
+      &.columns-left .content.column
+        +span-columns(12, false)
+
+  // fluid layout calculations
+  body.layout-fluid
+    &.show-grid
+      +visualize-grid
+
+    nav,
+    header,
+    footer,
+    div.wrapper
+      width: calc-fluid-grid($grid-columns * 2)
+
+    // 2 sidebar layouts
+    &.two-sidebars
+      &.columns-right .content.column
+        +span-fluid-columns(8)
+
+      &.columns-middle .sidebar.second,
+      &.columns-middle .content.column,
+      &.columns-left .content.column
+        +span-fluid-columns(8, false)
+
+      &.columns-left .sidebar.first,
+      &.columns-left .sidebar.second,
+      &.columns-middle .sidebar.first
+        +span-fluid-columns(4)
+
+      &.columns-right .sidebar.first,
+      &.columns-right .sidebar.second
+        +span-fluid-columns(4, false)
+
+      &.columns-middle
+        .sidebar.second
+          position: relative
+          right: auto
+
+    // 1 sidebar layouts
+    &.one-sidebar
+      &.columns-right .content.column,
+      &.columns-middle .content.column,
+      &.columns-left .content.column
+        +span-fluid-columns(8, false)
+
+      &.columns-middle .sidebar.second,
+      &.columns-middle .sidebar.first,
+      &.columns-left .sidebar.first,
+      &.columns-left .sidebar.second
+        +span-fluid-columns(4)
+
+      &.columns-right .sidebar.first,
+      &.columns-right .sidebar.second
+        +span-fluid-columns(4, false)
+
+      &.columns-right.sidebar-first,
+      &.columns-middle.sidebar-second
+        .content.column
+          +span-fluid-columns(8, true)
+
+        .sidebar.second
+          +span-fluid-columns(4, false)
+
+    // no sidebar layout
+    &.no-sidebars
+      &.columns-middle .content.column,
+      &.columns-right .content.column,
+      &.columns-left .content.column
+        +span-fluid-columns(12, false)

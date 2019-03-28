@@ -1,0 +1,137 @@
+div#svg-grid-background,
+div.responsive-identifier
+  display: none
+
+body.show-responsive-identifier
+  div.responsive-identifier
+    display: block
+    position: fixed
+    left: 0
+    bottom: 0
+    padding: 4px
+    z-index: 10
+    width: 100%
+    text-align: center
+    font-weight: bold
+
+body.show-grid
+  div#svg-grid-background
+    position: absolute
+    left: 0
+    right: 0
+    bottom: 0
+    top: 0
+    z-index: -1
+    display: block
+
+    > svg
+      margin: 0 auto
+      display: block
+
+      rect
+        @media #{$desktop}
+          fill: rgba($desktop-identifier-color, 0.12)
+
+        @media #{$tablet-l}
+          fill: rgba($tablet-l-identifier-color, 0.12)
+
+        @media #{$tablet-p}
+          fill: rgba($tablet-p-identifier-color, 0.12)
+
+        @media #{$mobile-l}
+          fill: rgba($mobile-l-identifier-color, 0.12)
+
+        @media #{$mobile-p}
+          fill: rgba($mobile-p-identifier-color, 0.12)
+
+  &.toolbar-vertical div#svg-grid-background
+    left: 15rem
+
+div.wrapper
+  position: relative
+  margin: 0 auto
+
+  .content.column,
+  .sidebar.first,
+  .sidebar.second
+    margin-bottom: 10px
+
+// Layout with two sidebars and the main column in the middle
+body.columns-middle
+  .content.column
+    float: right
+
+  .sidebar
+    &.first
+      float: left
+
+    &.second
+      float: right
+
+  &.one-sidebar.sidebar-second
+    .content.column
+      float: left
+
+    .sidebar.second
+      float: left
+
+  @media #{$mobile}
+    &.layout-fluid,
+    &.layout-adaptive
+      .content.column,
+      .sidebar.second
+        float: none
+
+// Layout with two sidebars and the main column on the right
+body.columns-left
+  .content.column
+    float: right
+
+  .sidebar.first,
+  .sidebar.second
+    float: left
+
+  @media #{$mobile-l}
+    &.layout-fluid,
+    &.layout-adaptive
+      .content.column,
+      .sidebar.first,
+      .sidebar.second
+        float: none
+
+// Layout with two sidebars and the main column on the left
+body.columns-right
+  .content.column
+    float: left
+
+  .sidebar
+    &.first
+      float: left
+
+    &.second
+      float: right
+
+nav,
+header,
+footer
+  clear: both
+  margin: 0 auto
+
+body
+  @if $debug-mode
+    .content.column,
+    .sidebar
+      background-color: rgba(red, 0.2)
+
+#breadcrumbs
+  ol
+    +inline-list
+
+    li
+
+      &:before
+        content: attr(data-icon)
+        margin-left: 5px
+
+      &:first-child:before
+        display: none

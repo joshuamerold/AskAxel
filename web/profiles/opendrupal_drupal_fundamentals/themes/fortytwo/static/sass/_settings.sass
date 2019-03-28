@@ -1,0 +1,80 @@
+$debug-mode: false
+
+// Vendor prefixes
+$default-prefixes: webkit, khtml, moz, ms, o
+
+// Font icons using Icomoon font
+$fonticons: status "\e619", error "\e61a", warning "\e61b", checked "\e00b", unchecked "\e00c", checked-dot "\e00d"
+
+// Various arrows (Open arrows), (Closed arrows)
+$fontarrows: ((down "\e607", up "\e608", left "\e616", right "\e617"), (down "\e610", up "\e60e", left "\e606", right "\e60f"))
+$icon-spacing: 5px
+
+// Basic colors
+$page-background-color: white
+$page-font-color: #3B3B3B
+
+// Grid debug colors
+$pomegranate: #C0392B
+$amethyst: #9B59B6
+$belizehole: #2980B9
+$nepgritis: #27AE60
+$sunflower: #F1C40F
+
+$default-font-size: 16px
+$default-line-height: 24px
+
+// mark-tag
+$mark-background-color: yellow
+$mark-font-color: black
+
+$border-radius: 2px
+
+// Inputs
+$input-focus-border-color: royalblue
+$input-border-radius: $border-radius
+$webkit-autofill-color: #F0FEFF
+
+// Buttons
+$button-border-color: silver
+$button-border-hover-color: orangered
+$button-font-color: darken($button-border-hover-color, 10%)
+$button-border-radius: $border-radius
+$button-font-size: $default-font-size
+$button-background-color: whitesmoke
+
+// Fieldset
+$fieldset-border-color: $button-border-color
+
+// radio & checkboxes
+$checked-color: $input-focus-border-color
+$check-icon-color: grey
+
+// default grid values
+$default-grid-columns: 16
+$default-grid-column-width: 48
+$default-grid-gutter-width: 30
+
+$master-context-width: ($default-grid-column-width * $default-grid-columns) + ($default-grid-gutter-width * ($default-grid-columns - 1))
+
+// media queries
+$mobile: "screen and (min-width: 0px) and (max-width: 767px)"
+$mobile-p: "screen and (min-width: 0px) and (max-width: 479px)"
+$mobile-l: "screen and (min-width: 480px) and (max-width: 767px)"
+
+$tablet: "screen and (min-width: 768px) and (max-width: 1247px)"
+$tablet-p: "screen and (min-width: 768px) and (max-width: 1001px)"
+$tablet-l: "screen and (min-width: 1002px) and (max-width: 1247px)"
+
+$desktop: "screen and (min-width: 1248px)"
+
+$mobile-p-identifier-color: $sunflower
+$mobile-p-identifier-text: "MOBILE PORTRAIT"
+$mobile-l-identifier-color: $nepgritis
+$mobile-l-identifier-text: "MOBILE LANDSCAPE"
+$tablet-p-identifier-color: $belizehole
+$tablet-p-identifier-text: "TABLET PORTRAIT"
+$tablet-l-identifier-color: $amethyst
+$tablet-l-identifier-text: "TABLET LANDSCAPE"
+$desktop-identifier-color: $pomegranate
+$desktop-identifier-text: "DESKTOP"
