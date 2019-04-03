@@ -1,0 +1,16 @@
+name: Questions and Answers
+description: "Adds the ability for a question and answer system to be attached to entities."
+# core: 8.x
+type: module
+package: Questions and Answers
+# core: '8.x'
+dependencies:
+  - drupal:entity_reference
+  - drupal:user
+configure: questions_answers.admin_settings
+
+# Information added by Drupal.org packaging script on 2019-03-13
+version: '8.x-1.7'
+core: '8.x'
+project: 'questions_answers'
+datestamp: 1552494192

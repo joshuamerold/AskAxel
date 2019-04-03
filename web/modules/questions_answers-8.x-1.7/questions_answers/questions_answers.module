@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Drupal Module: Questions and Answers.
+ *
+ * Provides questions and answers fieldtype for entities.
+ */
+
+use Drupal\Core\Render\Markup;
+
+/**
+ * Implements hook_theme().
+ */
+function questions_answers_theme($existing, $type, $theme, $path) {
+  return [
+    // Template for questions and answers.
+    'questions_answers' => [
+      'variables' => [
+        'questions' => [],
+        'question_form' => NULL,
+        'terms_and_conditions' => NULL,
+      ],
+    ],
+    // Template for question.
+    'questions_answers_question' => [
+      'variables' => [
+        'question' => NULL,
+        'submitted' => NULL,
+        'report_form' => NULL,
+        'answers' => [],
+        'answer_form' => NULL,
+        'subscribe_form' => NULL,
+      ],
+    ],
+    // Template for answer.
+    'questions_answers_answer' => [
+      'variables' => [
+        'username' => NULL,
+        'roles' => [],
+        'created' => NULL,
+        'published' => NULL,
+        'answer' => NULL,
+        'report_form' => NULL,
+        'verified' => NULL,
+        'helpful_form' => NULL,
+      ],
+    ],
+    // Template for moderation alert.
+    'questions_answers_moderation_alert' => [
+      'variables' => [
+        'message' => NULL,
+      ],
+    ],
+    // Template for Subscription Email.
+    'questions_answers_email_subscription' => [
+      'variables' => [],
+    ],
+    // Template for New Question Email.
+    'questions_answers_email_new_question' => [
+      'variables' => [],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function questions_answers_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'notify_subscriber':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = $params['subject'];
+      $message['body'][] = Markup::create($params['message']);
+      break;
+  }
+}

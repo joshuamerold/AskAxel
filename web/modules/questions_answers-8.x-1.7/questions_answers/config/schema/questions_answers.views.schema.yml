@@ -1,0 +1,25 @@
+# Schema for the views plugins of the Comment module.
+
+views.field.questions_answers_reported:
+  type: views.field.field
+  label: 'Reported Users'
+
+views.field.questions_answers_parententity:
+  type: views.field.field
+  label: 'Entity'
+
+views.field.questions_answers_subscribed:
+  type: views.field.field
+  label: 'Subscribed Users'
+
+views.field.questions_answers_answerlist:
+  type: views.field.field
+  label: 'Answers List'
+
+views.field.questions_answers_author:
+  type: views.field.field
+  label: 'Author Name'
+
+views.field.questions_answers_helpfulvotes:
+  type: views.field.field
+  label: 'Helpful Votes'

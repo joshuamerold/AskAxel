@@ -1,0 +1,29 @@
+questions_answers.admin_settings:
+  path: '/admin/config/content/questions-answers'
+  defaults:
+    _form: '\Drupal\questions_answers\Form\SettingsForm'
+    _title: 'Questions and Answers Settings'
+  requirements:
+    _permission: 'administer site configuration'
+questions_answers.unsubscribe:
+  path: '/questions-answers/unsubscribe'
+  defaults:
+    _form: 'Drupal\questions_answers\Form\UnsubscribeForm'
+    _title: 'Questions and Answers Unsubscribe'
+  requirements:
+    _permission: 'access content'
+    _custom_access: 'Drupal\questions_answers\Form\UnsubscribeForm::access'
+questions_answers.admin_block:
+  path: '/admin/content/questions-answers'
+  defaults:
+    _controller: '\Drupal\questions_answers\Controller\QuestionsAnswersController::adminMenuBlockPage'
+    _title: 'Questions and Answers'
+  requirements:
+    _permission: 'administer questions and answers'
+questions_answers.moderation_queue:
+  path: '/admin/content/questions-answers/moderation'
+  defaults:
+    _form: '\Drupal\questions_answers\Form\ModerationQueueForm'
+    _title: 'Questions and Answers Moderation Queue'
+  requirements:
+    _permission: 'administer questions and answers'

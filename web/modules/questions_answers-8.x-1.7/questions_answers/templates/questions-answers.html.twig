@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * Renders an answer for the Questions and Answers module.
+ *
+ * Available variables:
+ * - questions: the questions to display.
+ * - question_form: the form for asking questions.
+ * - terms_and_conditions: terms and conditions link.
+ *
+ * @ingroup themeable
+ */
+#}
+
+<div class="questions-and-answers">
+  {% if questions|length == 0 %}
+    <div class="header">{{ 'No questions have been asked.'|t }}</div>
+  {% else %}
+    <div class="header">{{ 'Click each question to see its answers.'|t }}</div>
+    <div class="questions">{{ questions }}</div>
+  {% endif %}
+  {{ question_form }}
+  <div class="terms-and-conditions">{{ terms_and_conditions}}</div>
+</div>

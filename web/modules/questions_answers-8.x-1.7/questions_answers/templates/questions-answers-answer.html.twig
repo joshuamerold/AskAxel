@@ -1,0 +1,41 @@
+{#
+/**
+ * @file
+ * Renders an answer for the Questions and Answers module.
+ *
+ * Available variables:
+ * - username: the username of the user submitting the answer.
+ * - roles: the roles of the user submitting the answer.
+ * - created: the date this answer was submitted.
+ * - published: flag indicating published state of the answer.
+ * - answer: the text of the answer.
+ * - report_form: form for reporting the answer.
+ * - verified: flag indicating if the answer has been verified.
+ * - helpful_form: form for flagging the answer as helpful.
+ *
+ * @ingroup themeable
+ */
+#}
+
+<fieldset class="answer">
+  {% if published == false %}
+    <div class="unpublished">{{ 'Unpublished'|t }}</div>
+  {% endif %}
+  <div class="user">
+    <div class="name">{{ username }}</div>
+    <div class="roles">
+      {% for role in roles %}
+        <div class="role {{ role.id }}">{{ role.name }}</div>
+      {% endfor %}
+    </div>
+    <div class="created">{{ created }}</div>
+  </div>
+  <div class="answer-section">
+    <div class="value">{{ answer }}</div>
+    {% if verified == 1 %}
+      <div class="verified">{{ 'Verified Answer'|t }}</div>
+    {% endif %}
+    <div class="helpful-form">{{ helpful_form }}</div>
+    <div class="report-form">{{ report_form }}</div>
+  </div>
+</fieldset>

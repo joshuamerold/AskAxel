@@ -1,0 +1,31 @@
+{#
+/**
+ * @file
+ * Renders an answer for the Questions and Answers module.
+ *
+ * Available variables:
+ * - question: the text of the question.
+ * - submitted: the date the question was submitted.
+ * - report_form: the form for reporting the question.
+ * - answers: the answers for the question.
+ * - answer_form: the form for submitting an answer.
+ *
+ * @ingroup themeable
+ */
+#}
+
+<details class="question">
+  <summary>{{ question }}</summary>
+  <p class="created">{{ submitted }}</p>
+  <div class="subscribe-form">{{ subscribe_form }}</div>
+  <div class="report-form">{{ report_form }}</div>
+  <details class="answers" open>
+    <summary>{{ 'Answers'|t }} ({{ answers|length }})</summary>
+    {% if answers|length == 0 %}
+      <p>{{ 'No answers yet!'|t }}</p>
+    {% else %}
+      {{ answers }}
+    {% endif %}
+    {{ answer_form }}
+  </details>
+</details>

@@ -1,0 +1,15 @@
+questions_answers.admin_block:
+  title: 'Questions and Answers'
+  description: 'Page for entity Questions and Answers administration.'
+  route_name: questions_answers.admin_block
+  parent: system.admin_content
+questions_answers.moderation_queue:
+  title: 'Questions and Answers Moderation Queue'
+  description: 'Moderation Queue for unapproved entity Questions and Answers.'
+  route_name: questions_answers.moderation_queue
+  parent: questions_answers.admin_block
+questions_answers.admin_settings:
+  title: 'Questions and Answers Settings'
+  description: 'Global settings for the display of entity Questions and Answers.'
+  route_name: questions_answers.admin_settings
+  parent: questions_answers.admin_block

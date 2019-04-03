@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - questions_answers
+  enforced:
+    module:
+      - questions_answers
+id: qa_staff_member
+label: 'Questions and Answers Staff Member'
+weight: 1
+is_admin: false
+permissions: {  }
