@@ -81,15 +81,15 @@ class UnsubscribeForm extends ConfirmFormBase {
         '#attributes' => [
           'class' => ['message'],
         ],
-        '#children' => $this->t('This form will unsubscribe you from all Questions and Answers notifications.'),
+        '#children' => $this->t('Von allen Benachrichtungen abmelden!'),
       ];
       $form['email'] = [
         '#type' => 'email',
-        '#title' => $this->t('Please confirm your email address'),
+        '#title' => $this->t('Bitte E-Mail-Adresse bestätigen!!'),
       ];
       $form['button'] = [
         '#type' => 'submit',
-        '#value' => $this->t('Unsubscribe'),
+        '#value' => $this->t('Entfolgen!'),
       ];
       return $form;
     }
@@ -116,7 +116,7 @@ class UnsubscribeForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Are you sure you want to unsubscribe from all @sitename Questions and Answers notifications?', [
+    return $this->t('Bist du sicher, dass du zukünfig keine Benachrichtigung mehr erhalten möchtest?', [
       '@sitename' => $this->configFactory->get('system.site')->get('name'),
     ]);
   }
@@ -125,14 +125,14 @@ class UnsubscribeForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return $this->t('Unsubscribe');
+    return $this->t('Entfolgen!');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDescription() {
-    return $this->t('Unbsubscribing will remove you from all email notifications for questions and answers on this site. This action cannot be undone.');
+    return $this->t('"Entfolgen" schließt dich von allen Benachrichtigungen komplett aus!');
   }
 
   /**
@@ -152,7 +152,7 @@ class UnsubscribeForm extends ConfirmFormBase {
     }
 
     // Show message.
-    $this->messenger()->addStatus($this->t('You have been successfully unsubscribed from all Questions and Answers notifications for @sitename.', [
+    $this->messenger()->addStatus($this->t('Du hast dich erfolgreich abgemeldet @sitename.', [
       '@sitename' => $this->configFactory->get('system.site')->get('name'),
     ]));
 

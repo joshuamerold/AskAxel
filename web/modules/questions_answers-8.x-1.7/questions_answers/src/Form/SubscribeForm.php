@@ -58,7 +58,7 @@ class SubscribeForm extends FormBase {
    */
   public function getFormId() {
     if (!isset($this->question)) {
-      throw new \Exception('Question not found. setQuestion() should be called before form instantiation.');
+      throw new \Exception('Frage nicht gefunden.');
     }
     return 'questions_answers_subscribe_form_' . $this->question->id();
   }
@@ -82,7 +82,7 @@ class SubscribeForm extends FormBase {
         '#attributes' => [
           'class' => ['messages messages--status helpful-message'],
         ],
-        '#children' => $this->t('Thank you! You will be notified when this question is answered.'),
+        '#children' => $this->t('Du wirst benachrichtig sobald diese Frage beantwortet wurde.'),
       ];
 
       // Subscribe.
@@ -95,7 +95,7 @@ class SubscribeForm extends FormBase {
       if ($this->currentUser->isAnonymous()) {
         $form['email'] = [
           '#type' => 'email',
-          '#title' => $this->t('What is your email address?'),
+          '#title' => $this->t('Wie lautet deine E-Mail-Adresse?'),
         ];
         $form['button'] = [
           '#type' => 'button',
@@ -114,7 +114,7 @@ class SubscribeForm extends FormBase {
           '#attributes' => [
             'class' => ['messages messages--status helpful-message'],
           ],
-          '#children' => $this->t('Thank you! You will be notified when this question is answered.'),
+          '#children' => $this->t('Du wirst benachrichtigt sobald die Frage beantwortet wurde!'),
         ];
         // Subscribe.
         $this->question->addSubscription($this->currentUser->id());
@@ -126,7 +126,7 @@ class SubscribeForm extends FormBase {
         '#attributes' => [
           'class' => ['messages messages--status helpful-message'],
         ],
-        '#children' => $this->t('You have been successfully unsubscribed from this question.'),
+        '#children' => $this->t('Du wirst nun nicht mehr benachrichtigt!'),
       ];
 
       // Unsubscribe.
@@ -143,11 +143,11 @@ class SubscribeForm extends FormBase {
         '#attributes' => [
           'class' => ['already-subscribed'],
         ],
-        '#children' => $this->t('You are subscribed to this question.'),
+        '#children' => $this->t('Du wirst benachrichtigt, sobald die Frage beantwortet wurde!'),
       ];
       $form['unsubscribe'] = [
         '#type' => 'checkbox',
-        '#title' => $this->t('Unsubscribe'),
+        '#title' => $this->t('Entfolgen'),
         '#return_value' => 'unsubscribe',
         '#ajax' => [
           'callback' => [$this, 'markSubscribed'],
@@ -159,7 +159,7 @@ class SubscribeForm extends FormBase {
     else {
       $form['subscribe'] = [
         '#type' => 'checkbox',
-        '#title' => $this->t('Notify me when this question is answered'),
+        '#title' => $this->t('Erinnere mich sobald die Frage beantwortet wurde!'),
         '#return_value' => 'subscribe',
         '#ajax' => [
           'callback' => [$this, 'markSubscribed'],
