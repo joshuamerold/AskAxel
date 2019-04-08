@@ -1,0 +1,16 @@
+name = Answers Userpoints Integration
+description = Assigns user points on system events like voting on an answer or a question or marking the best answer for a question. It also alters Answers views to include user points.
+dependencies[] = answers:answers_best_answer
+dependencies[] = answers:answers_voting
+dependencies[] = userpoints:userpoints_rules
+dependencies[] = voting_rules
+package = Answers
+core = 7.x
+
+files[] = answers_userpoints.test
+
+; Information added by Drupal.org packaging script on 2018-11-13
+version = "7.x-4.0-rc3"
+core = "7.x"
+project = "answers"
+datestamp = "1542128884"

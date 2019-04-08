@@ -1,0 +1,229 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the answers module.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Defines question and answer content types and entityreference field to relate
+ * each answer with its question.
+ */
+function answers_install() {
+  $t = get_t();
+
+  // Get the answer_question and answers_answer node types.
+  node_types_rebuild();
+  $types = node_type_get_types();
+
+  // Set up the answers_question node type.
+  node_add_body_field($types['answers_question'], $t('Body'));
+  $body_instance = field_info_instance('node', 'body', 'answers_question');
+  $body_instance['display']['answers_full_node']['label'] = 'hidden';
+  $body_instance['settings']['display_summary'] = 0;
+  $body_instance['widget']['settings']['rows'] = 15;
+  field_update_instance($body_instance);
+
+  foreach (_answers_question_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  foreach (_answers_question_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'answers_question';
+    field_create_instance($instance);
+  }
+
+  // Set up the answers_answer node type.
+  node_add_body_field($types['answers_answer'], $t('Body'));
+  $body_instance = field_info_instance('node', 'body', 'answers_answer');
+  $body_instance['display']['default'] = array(
+    'label' => 'hidden',
+    'type' => 'text_default',
+    'module' => 'text',
+  );
+  $body_instance['display']['answers_full_node'] = array(
+    'label' => 'hidden',
+    'type' => 'text_default',
+    'module' => 'text',
+  );
+
+  $body_instance['settings']['display_summary'] = 0;
+  $body_instance['widget']['settings']['rows'] = 15;
+  field_update_instance($body_instance);
+
+  foreach (_answers_answer_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+  foreach (_answers_answer_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'answers_answer';
+    field_create_instance($instance);
+  }
+
+  field_cache_clear();
+  _answers_enable_permissions();
+
+  // TODO: extract comment and the rest of vars.
+  variable_set('node_preview_answers_question', 0);
+  variable_set('node_options_answers_question', array('status'));
+  variable_set('menu_options_answers_question', array());
+  variable_set('comment_answers_question', 2);
+  variable_set('comment_default_mode_answers_question', 0);
+  variable_set('comment_preview_answers_question', 0);
+  variable_set('comment_subject_field_answers_question', 0);
+
+  variable_set('node_preview_answers_answer', 0);
+  variable_set('node_options_answers_answer', array('status'));
+  variable_set('menu_options_answers_answer', array());
+  variable_set('comment_answers_answer', 2);
+  variable_set('comment_default_mode_answers_answer', 0);
+  variable_set('comment_preview_answers_answer', 0);
+  variable_set('comment_subject_field_answers_answer', 0);
+}
+
+/**
+ * Enable answers default permissions.
+ */
+function _answers_enable_permissions() {
+  $role_perm = array(
+    'authenticated user' => array(
+      'create answers_question content',
+      'edit own answers_question content',
+      'create answers_answer content',
+      'edit own answers_answer content',
+    ),
+    'administrator' => array(
+      'create answers_question content',
+      'edit own answers_question content',
+      'edit any answers_question content',
+      'delete own answers_question content',
+      'delete any answers_question content',
+      'create answers_answer content',
+      'edit own answers_answer content',
+      'edit any answers_answer content',
+      'delete own answers_answer content',
+      'delete any answers_answer content',
+    ),
+  );
+
+  foreach ($role_perm as $role_name => $permissions) {
+    $role = user_role_load_by_name($role_name);
+    if ($role) {
+      user_role_grant_permissions($role->rid, $permissions);
+    }
+
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Removes from the system content types, fields and variables related with
+ * question and answer content types. Content itself (nodes) is left.
+ */
+function answers_uninstall() {
+  field_attach_delete_bundle('node', 'answers_question');
+  field_attach_delete_bundle('node', 'answers_answer');
+
+  field_purge_batch(1000);
+
+  db_delete('variable')
+    ->condition(db_or()->condition('name', '%_answers_question', 'LIKE')->condition('name', '%_answers_answer', 'LIKE'))
+    ->execute();
+}
+
+/**
+ * Returns a structured array.
+ *
+ * Defining the fields created by the answers_question content type.
+ */
+function _answers_question_installed_fields() {
+  return array(
+    'question_locks' => array(
+      'translatable' => FALSE,
+      'locked' => TRUE,
+      'field_name' => 'question_locks',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'type' => 'list_text',
+      'settings' => array(
+        'allowed_values' => array(),
+        'allowed_values_function' => 'answers_locking_modules',
+      ),
+    ),
+  );
+}
+
+/**
+ * Returns a structured array.
+ *
+ * Defining the field instances for the answer content type.
+ */
+function _answers_question_installed_instances() {
+  return array(
+    'question_locks' => array(
+      'field_name' => 'question_locks',
+      'label' => t('Locked'),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+        'answers_full_node' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Returns a structured array.
+ *
+ * Defining the fields created by the answers_answer content type.
+ */
+function _answers_answer_installed_fields() {
+  return array(
+    'answers_related_question' => array(
+      'translatable' => FALSE,
+      'locked' => TRUE,
+      'field_name' => 'answers_related_question',
+      'cardinality' => 1,
+      'type' => 'entityreference',
+      'settings' => array(
+        'target_type' => 'node',
+        'handler' => 'base',
+        'handler_submit' => 'Change handler',
+        'handler_settings' => array(
+          'target_bundles' => array(
+            'answers_question' => 'answers_question',
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Returns a structured array.
+ *
+ * Defining the field instances for the answer content type.
+ */
+function _answers_answer_installed_instances() {
+  return array(
+    'answers_related_question' => array(
+      'field_name' => 'answers_related_question',
+      'label' => t('Related Question'),
+      'display' => array(
+        'answers_full_node' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+  );
+}

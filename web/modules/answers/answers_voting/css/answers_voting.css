@@ -1,0 +1,48 @@
+.node-answers-answer .rate-widget-number_up_down,
+.node-answers-question .rate-widget-number_up_down {
+  width: 38px;
+  text-align: center;
+  margin-top: 8px;
+}
+.node-answers-answer .rate-number-up-down-rating,
+.node-answers-question .rate-number-up-down-rating {
+  color: #aaa;
+  font-size: 1.4em;
+  line-height: 1.2em;
+}
+.node-answers-answer .rate-number-up-down-btn-up,
+.node-answers-question .rate-number-up-down-btn-up,
+.node-answers-answer .rate-number-up-down-btn-down,
+.node-answers-question .rate-number-up-down-btn-down {
+  display: block;
+  width: 38px;
+  height: 20px;
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.node-answers-answer .rate-number-up-down-btn-up,
+.node-answers-question .rate-number-up-down-btn-up {
+  background: url('../img/arrowup.png') 0 22px;
+}
+.node-answers-answer .rate-number-up-down-btn-down,
+.node-answers-question .rate-number-up-down-btn-down {
+  background: url('../img/arrowdown.png') 0 22px;
+}
+.node-answers-answer a.rate-number-up-down-btn-up:hover,
+.node-answers-question a.rate-number-up-down-btn-up:hover,
+.node-answers-answer a.rate-number-up-down-btn-down:hover,
+.node-answers-question a.rate-number-up-down-btn-down:hover,
+.node-answers-answer .rate-voted,
+.node-answers-question .rate-voted {
+  background-position: 0 63px;
+  cursor: pointer;
+}
+.node-answers-answer .rate-number-up-down-rating-up,
+.node-answers-question .rate-number-up-down-rating-up,
+.node-answers-answer .rate-number-up-down-rating-down,
+.node-answers-question .rate-number-up-down-rating-down,
+.node-answers-answer .rate-info,
+.node-answers-question .rate-info {
+  display: none;
+}

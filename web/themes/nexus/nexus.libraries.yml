@@ -5,6 +5,7 @@ global-css:
       assets/css/slicknav.min.css: {}
       assets/css/flexslider.css: {}
       assets/css/style.css: {}
+      styles_axel.css: {}
 
 
 global-js:

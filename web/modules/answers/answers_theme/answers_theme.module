@@ -1,0 +1,112 @@
+<?php
+
+/**
+ * @file
+ * The Answers_Theme module.
+ */
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * See:
+ * http://www.metachunk.com/blog/adding-module-path-drupal-7-theme-registry.
+ */
+function answers_theme_theme_registry_alter(&$theme_registry) {
+  $mod_path = drupal_get_path('module', 'answers_theme');
+  // Munge on a copy.
+  $theme_registry_copy = $theme_registry;
+  _theme_process_registry($theme_registry_copy, 'phptemplate', 'theme_engine', 'pow', $mod_path);
+  $theme_registry += array_diff_key($theme_registry_copy, $theme_registry);
+  $hooks = array('node');
+  foreach ($hooks as $h) {
+    _answers_insert_after_first_element($theme_registry[$h]['theme paths'], $mod_path);
+    // Add in new function for textareas.
+    $theme_registry['form_element_label']['function'] = 'answers_theme_theme_form_element_label';
+  }
+}
+
+/**
+ * Implements custom form_element_label.
+ */
+function answers_theme_theme_form_element_label($variables) {
+  $element = $variables['element'];
+
+  // Modifications for answers_theme.
+  $filter_help_button = '';
+  if (isset($element['#bundle'])) {
+
+    // Add a 'filter-help-button'. This uses jquery to toggle the display of
+    // the filter help area.
+    if (in_array($element['#bundle'], array('comment_node_answers_answer',
+      'comment_node_answers_question',
+      'answers_answer',
+    ))) {
+      $filter_help_button = '<span class="answers-form-filter-help"><a>Help</a></span>';
+    }
+
+    // Change the title of the answers form body.
+    if ($element['#bundle'] == 'answers_answer') {
+      $element['#title'] = t('Enter a new answer');
+    }
+  }
+
+  // This is also used in the installer, pre-database setup.
+  $t = get_t();
+
+  // If title and required marker are both empty, output no label.
+  if ((!isset($element['#title']) || $element['#title'] === '') && empty($element['#required'])) {
+    return '';
+  }
+
+  // If the element is required, a required marker is appended to the label.
+  $required = !empty($element['#required']) ? theme('form_required_marker', array('element' => $element)) : '';
+
+  $title = filter_xss_admin($element['#title']);
+
+  $attributes = array();
+  // Style the label as class option to display inline with the element.
+  if ($element['#title_display'] == 'after') {
+    $attributes['class'] = 'option';
+  }
+  // Show label only to screen readers to avoid disruption in visual flows.
+  elseif ($element['#title_display'] == 'invisible') {
+    $attributes['class'] = 'element-invisible';
+  }
+
+  if (!empty($element['#id'])) {
+    $attributes['for'] = $element['#id'];
+  }
+
+  $args = array(
+    '!title' => $title,
+    '!required' => $required,
+    '!filter_help_button' => $filter_help_button,
+  );
+
+  // The leading whitespace helps visually separate fields from inline labels.
+  return (' <label' . drupal_attributes($attributes) . '>' . $t('!title !required !filter_help_button', $args) . "</label>\n");
+
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function answers_theme_preprocess_node(&$vars) {
+  $type = $vars['node']->type;
+  if ($type == 'answers_question') {
+    $vars['theme_hook_suggestions'][] = 'node__answers_question';
+  }
+  elseif ($type == 'answers_answer') {
+    $vars['theme_hook_suggestions'][] = 'node__answers_answer';
+  }
+}
+
+/**
+ * Implements hook_preprocess_comment().
+ */
+function answers_theme_preprocess_comment(&$vars) {
+  $bundle = isset($vars['elements']['#bundle']) && $vars['elements']['#bundle'];
+  if ($bundle == 'comment_node_answers_answer' || $bundle == 'comment_node_answers_question') {
+    $vars['theme_hook_suggestions'][] = 'comment__node_answers_theme';
+  }
+}

@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * @file
+ * Tests for answers.module.
+ */
+
+/**
+ * Tests the functionality of the answers_userpoints module admin settings.
+ */
+class AnswersTaxonomyTestCase extends DrupalWebTestCase {
+  protected $answersUser;
+
+  /**
+   * Test getInfo.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Answers Taxonomy',
+      'description' => 'Answers Taxonomy Tests',
+      'group' => 'Answers',
+    );
+  }
+
+  /**
+   * Enable modules and create users with specific permissions.
+   */
+  public function setUp() {
+    parent::setUp('answers_taxonomy');
+    $this->answersUser = $this->drupalCreateUser(array('create answers_question content'));
+  }
+
+  /**
+   * Create Question with tags.
+   */
+  public function testTagNewContent() {
+
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->answersUser);
+
+    $this->drupalGet('node/add/answers-question');
+
+    $this->assertFieldByName('title', '', 'The title field exists');
+    $this->assertFieldByName("body[$langcode][0][value]", '', 'The body field exists');
+
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $question["answers_tags[und]"] = "animal, mamal, woodchuck";
+
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $this->drupalGet('tags');
+
+    $this->assertLink('animal', 0, 'A link to "animal" taxonomy term.');
+
+    $this->assertRaw('<span class="views-field views-field-nid">        <span class="field-content">1</span>  </span>', 'Number of Questions with tag.');
+
+  }
+
+  /**
+   * Tests permissions for default roles.
+   */
+  public function testDefaultPermissions() {
+    $admin = $this->drupalCreateUser(array('administer permissions'));
+
+    $this->drupalLogin($admin);
+    $this->drupalGet('admin/people/permissions');
+
+    // Authenticated Users.
+    $this->assertFieldChecked('edit-3-edit-terms-in-1', "Administer role has edit term.");
+    $this->assertFieldChecked('edit-3-delete-terms-in-1', "Administer role has delete term.");
+  }
+
+}

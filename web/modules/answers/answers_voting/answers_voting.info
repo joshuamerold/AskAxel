@@ -1,0 +1,14 @@
+name = Answers Voting
+description = Voting system for questions and answers. Includes voting rate widget and some views alter for including votes.
+dependencies[] = answers
+dependencies[] = rate
+package = Answers
+core = 7.x
+
+stylesheets[all][] = css/answers-voting.css
+
+; Information added by Drupal.org packaging script on 2018-11-13
+version = "7.x-4.0-rc3"
+core = "7.x"
+project = "answers"
+datestamp = "1542128884"

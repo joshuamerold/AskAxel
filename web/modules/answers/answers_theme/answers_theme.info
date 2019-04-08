@@ -1,0 +1,13 @@
+name = Answers_Theme
+description = Theme for Answers Q&A Service
+dependencies[] = answers
+package = Answers
+core = 7.x
+stylesheets[all][] = css/answers_theme.css
+scripts[] = js/answers_theme.js
+
+; Information added by Drupal.org packaging script on 2018-11-13
+version = "7.x-4.0-rc3"
+core = "7.x"
+project = "answers"
+datestamp = "1542128884"

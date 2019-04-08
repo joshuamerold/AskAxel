@@ -1,0 +1,49 @@
+.node-answers-wrapper .comment-wrapper {
+  background-color: #f7f7f7;
+  padding: 16px 32px 8px;
+  zoom: 1;
+  filter: alpha(opacity = 80);
+  opacity: 0.8;
+  font-size: .9em;
+  margin: 16px 0;
+}
+
+.answers-comment-text p {
+  display: inline;
+}
+
+.node-answers-wrapper .answers-comments-title {
+  margin: 0;
+}
+
+.node-answers-wrapper .view-question-answers .view-header {
+  font-size: 2em;
+  margin: 8px 0;
+}
+
+.new-answer-form-title {
+  padding-bottom: 16px;
+}
+
+.answers-comments-form-title {
+  display: inline;
+  padding: 2px;
+  text-decoration: underline;
+  color: #333;
+}
+
+.answers-comments-form-title:hover {
+  background-color: #333;
+  color: #eee;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.answer-widgets {
+  display: table-cell;
+}
+
+.answer-body {
+  display: table-cell;
+  width: 100%;
+}

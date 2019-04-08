@@ -1,0 +1,21 @@
+name = Answers
+description = Question and answer service
+configure = admin/config/content/answers
+dependencies[] = views
+dependencies[] = entityreference
+dependencies[] = list
+package = Answers
+core = 7.x
+files[] = answers.test
+files[] = answers_views_handler_answers_count.inc
+files[] = answers_views_handler_new_content.inc
+files[] = answers_views_handler_new_content_since_last_login.inc
+
+stylesheets[all][] = css/answers.css
+scripts[] = js/answers.js
+
+; Information added by Drupal.org packaging script on 2018-11-13
+version = "7.x-4.0-rc3"
+core = "7.x"
+project = "answers"
+datestamp = "1542128884"

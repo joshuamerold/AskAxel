@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Code for the Answers Taxonomy feature.
+ */
+
+include_once 'answers_taxonomy.features.inc';

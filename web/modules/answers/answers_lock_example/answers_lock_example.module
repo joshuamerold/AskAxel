@@ -1,0 +1,120 @@
+<?php
+
+/**
+ * @file
+ * Example module of the question 'lock'.
+ *
+ * A simple module to demonstrate the programming API for using the question
+ * locking functionality within the 'Answers' module.
+ */
+
+/**
+ * Not intended for actual use.
+ *
+ * This module is not for use on sites. It only provides an example for module
+ * developers of how to use the lock API.
+ *
+ * The lock API lets questions be "locked" meaning that no more answers can be
+ * added to them. See the file "answers/includes/answers_lock.inc" for more
+ * information.
+ *
+ * The module lets an administrator declare that all questions will be locked.
+ * The administrator can declare this through a configuration option available
+ * at "admin/config/content/answers"
+ *
+ * For a more complex example, see the "Best Answer" module.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function answers_lock_example_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#modulename":
+      return '<p>' . t('Demonstrate the programming API for question locking.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Update the answers system settings form to contain an additional setting.
+ */
+function answers_lock_example_form_alter(&$form, $form_state, $form_id) {
+
+  switch ($form_id) {
+
+    // Update the administrative settings form to have settings for AGL.
+    case 'answers_settings':
+
+      $form['answers_lock_example_settings'] = array(
+        '#type'          => 'fieldset',
+        '#title'         => 'Answers Lock Example Settings',
+        '#description'   => 'Demonstrate the question locking functionality',
+        '#weight'        => 10,
+      );
+
+      $old = variable_get('answers_lock_example_lock_questions_p', 0);
+
+      $form['answers_lock_example_settings']['answers_lock_example_lock_questions_p'] = array(
+        '#type'          => 'checkbox',
+        '#title'         => 'Lock all questions?',
+        '#description'   => 'If set, all questions will be locked. If unset, all questions will be unlocked (unless they are locked for another reason)',
+        '#default_value' => $old,
+      );
+
+      // Store the old value.
+      $form['answers_lock_example_settings']['answers_lock_example_old_lock_questions_p'] = array(
+        '#type'          => 'value',
+        '#value'         => $old,
+      );
+
+      // Add in a submit handler *before* the standard handler.
+      $form['#submit'][] = 'answers_lock_example_settings_form_submit';
+
+      break;
+  }
+}
+
+/**
+ * Implements hook_answers_lock_info().
+ */
+function answers_lock_example_answers_lock_info() {
+  return variable_get('answers_lock_example_lock_questions_p', FALSE);
+}
+
+/**
+ * Process answers_lock configuration settings.
+ *
+ * When the configuration setting changes, reset all question locks.
+ * Some *other* module may still want a question locked. If *any* module wants a
+ * question locked, then it is locked. Otherwise, it is unlocked.
+ */
+function answers_lock_example_settings_form_submit($form, &$form_state) {
+  module_load_include('inc', 'answers', 'includes/answers.lock');
+  $new = $form_state['values']['answers_lock_example_lock_questions_p'];
+  $old = $form_state['values']['answers_lock_example_old_lock_questions_p'];
+  if ($old != $new) {
+    drupal_set_message($new ? 'Questions have been locked.' : 'Questions have been unlocked (unless they are locked for another reason)');
+    answers_reset_lock_info();
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ *
+ * When a new question is saved, if the configuration is set to lock questions,
+ * then set the question lock. Here, we could use "answers_reset_question_lock",
+ * however it is faster to simply call "answers_lock_question" to set the lock.
+ *
+ * However, neither of those functions can be used within hook_node_insert
+ * because they call node_save, resulting in an infinite loop. So, here, we
+ * simply set the question lock field directly
+ * (generally not the best practice).
+ */
+function answers_lock_example_node_presave($node) {
+  if ($node->type == 'answers_question' && variable_get('answers_lock_example_lock_questions_p', 0)) {
+    $lang = field_language('node', $node, 'question_locks');
+    $node->question_locks[$lang][0]['value'] = 'answers_lock_example';
+  }
+}

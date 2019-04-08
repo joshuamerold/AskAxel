@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Answers subscription and notification.
+ *
+ * Based on https://drupal.org/node/1915692
+ */
+
+module_load_include('inc', 'answers_notifications', 'includes/answers_notifications.flag_default');
+module_load_include('inc', 'answers_notifications', 'includes/answers_notifications.message_default');
+
+/**
+ * Implements hook_node_insert().
+ *
+ * Notify subscribers of new answer.
+ */
+function answers_notifications_node_insert($node) {
+  if ($node->type == 'answers_answer') {
+    answers_notifications_new_answer_notify($node);
+  }
+}
+
+/**
+ * Notifies all question subscribers if new answer is posted.
+ *
+ * @param object $answer
+ *   Node object of the new answer.
+ */
+function answers_notifications_new_answer_notify($answer) {
+  $question = answers_answer_question($answer);
+  $fields = array(
+    'answers_notifications_answer' => $answer->nid,
+    'answers_notifications_question' => $question->nid,
+  );
+
+  answers_notifications_create_message('answers_notifications_new_answer', $answer->uid, $question, $fields);
+}
+
+/**
+ * Creates new message with given parameters.
+ *
+ * @param string $type
+ *   Type of the message.
+ * @param int $uid
+ *   User ID, to which to assign message.
+ * @param object $node
+ *   Node which is used to get the context and list of subscribers.
+ * @param array $fields
+ *   Values to place in corresponding fields.
+ * @param array $uids
+ *   User IDs array. It's used in case of a single recipient for the message.
+ */
+function answers_notifications_create_message($type, $uid, $node, array $fields = array(), array $uids = array()) {
+  // Create message.
+  $message = message_create($type, array('uid' => $uid));
+  $wrapper = entity_metadata_wrapper('message', $message);
+
+  // Set necessary fields to use with tokens.
+  foreach ($fields as $name => $value) {
+    $wrapper->$name->set($value);
+  }
+  $message->save();
+
+  // Add parameters in order to avoid creating message for every subscriber.
+  $notify_options = array(
+    'internal' => array(
+      'save on fail' => FALSE,
+      'save on success' => FALSE,
+      'mid' => $message->mid,
+    ),
+  );
+  $subscribe_options = array(
+    'save message' => FALSE,
+    'author' => $uid,
+  );
+  if (!empty($uids)) {
+    $subscribe_options['uids'] = $uids;
+  }
+
+  return message_subscribe_send_message('node', $node, $message, $notify_options, $subscribe_options);
+}

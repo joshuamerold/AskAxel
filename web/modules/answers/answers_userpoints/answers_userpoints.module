@@ -1,0 +1,395 @@
+<?php
+
+/**
+ * @file
+ * The answers_userpoints module.
+ */
+
+/**
+ * Implements hook_views_default_views_alter().
+ *
+ * Adding the user points to the user.
+ */
+function answers_userpoints_views_default_views_alter(&$views) {
+  if (array_key_exists('questions', $views)) {
+    $views['questions']->tag = ($views['questions']->tag == '' ? '' : $views['questions']->tag . ', ') . 'answers_userpoints';
+
+    $handler =& $views['questions']->display['default']->handler;
+
+    /* Relationship: Userpoints total: User */
+    $handler->display->display_options['relationships']['uid_1']['id'] = 'uid_1';
+    $handler->display->display_options['relationships']['uid_1']['table'] = 'userpoints_total';
+    $handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
+
+    $old_fields = $handler->display->display_options['fields'];
+    $handler->display->display_options['fields'] = array();
+    /* Field: Userpoints total: Current total points */
+    $handler->display->display_options['fields']['points']['id'] = 'points';
+    $handler->display->display_options['fields']['points']['table'] = 'userpoints_total';
+    $handler->display->display_options['fields']['points']['field'] = 'points';
+    $handler->display->display_options['fields']['points']['relationship'] = 'uid_1';
+    $handler->display->display_options['fields']['points']['label'] = 'Points';
+    $handler->display->display_options['fields']['points']['exclude'] = TRUE;
+    $handler->display->display_options['fields']['points']['element_label_colon'] = FALSE;
+
+    $handler->display->display_options['fields'] += $old_fields;
+
+    /* Field: User: Name */
+    $handler->display->display_options['fields']['name']['alter']['alter_text'] = TRUE;
+    $handler->display->display_options['fields']['name']['alter']['text'] = '[name] <span class="answers-views-userpoints">[points]</span>';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function answers_userpoints_form_alter(&$form, $form_state, $form_id) {
+
+  switch ($form_id) {
+
+    // Add settings for answers_best_answer to the answers settings form.
+    case 'answers_settings':
+      $rules_config = array();
+      $rules = array('rules_voteup_question', 'rules_votedown_question',
+        'rules_voteup_answer', 'rules_votedown_answer',
+        'rules_flag_answers_best_answer',
+        'answers_userpoints_flag_answers_own_best_answer',
+      );
+
+      foreach ($rules as $key) {
+
+        $rule = rules_config_load($key);
+        foreach ($rule->actions() as $action) {
+          if ($action->settings['operation'] == 'addPoints') {
+
+            if ($key == 'answers_userpoints_flag_answers_own_best_answer') {
+              $rules_config[$key] = $action->settings['points'];
+            }
+            elseif (in_array($action->settings['user:select'],
+              array('node:author', 'flagged-node:author'))) {
+              $rules_config[$key] = $action->settings['points'];
+            }
+            elseif ($action->settings['user:select'] == 'flagging-user') {
+              $rules_config[$key . '_user'] = $action->settings['points'];
+            }
+
+          }
+          elseif ($action->settings['operation'] == 'deletePoints'
+              && $action->settings['user:select'] == 'vote:user') {
+            $rules_config[$key . '_user'] = $action->settings['points'];
+          }
+          elseif ($action->settings['operation'] == 'deletePoints'
+              && $action->settings['user:select'] == 'node:author') {
+            $rules_config[$key] = $action->settings['points'];
+          }
+          elseif ($action->settings['operation'] == 'removePoints') {
+            if ($action->settings['user:select'] == 'node:author') {
+              $rules_config[$key] = $action->settings['points'];
+            }
+            elseif ($action->settings['user:select'] == 'vote:user') {
+              $rules_config[$key . '_user'] = $action->settings['points'];
+            }
+          }
+
+        }
+
+      }
+
+      $form['answers_userpoints_answer_settings'] = array(
+        '#type'          => 'fieldset',
+        '#title'         => 'Userpoints Settings',
+        '#weight'        => 10,
+      );
+
+      $form['answers_userpoints_answer_settings']['rules_voteup_question'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Up vote question author reward'),
+        '#description'   => t('The amount of !points to award on question author on Up Vote question', userpoints_translation()),
+        '#default_value' => $rules_config['rules_voteup_question'],
+      );
+      $form['answers_userpoints_answer_settings']['rules_votedown_question'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Down vote question penalty'),
+        '#description'   => t('The amount of !points to remove from the question author on Down Vote', userpoints_translation()),
+        '#default_value' => abs($rules_config['rules_votedown_question']),
+      );
+      $form['answers_userpoints_answer_settings']['rules_votedown_question_cost'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Down vote question cost'),
+        '#description'   => t('The amount of !points to remove from the voter on Down Vote question', userpoints_translation()),
+        '#default_value' => abs($rules_config['rules_votedown_question_user']),
+      );
+      $form['answers_userpoints_answer_settings']['rules_voteup_answer'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Up vote answer reward'),
+        '#description'   => t('The amount of !points to award on the answer author on Up Vote answer', userpoints_translation()),
+        '#default_value' => $rules_config['rules_voteup_answer'],
+      );
+      $form['answers_userpoints_answer_settings']['rules_votedown_answer'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Down vote answer cost'),
+        '#description'   => t('The amount of !points to remove from the voter on Down Vote answer', userpoints_translation()),
+        '#default_value' => abs($rules_config['rules_votedown_answer_user']),
+      );
+      $form['answers_userpoints_answer_settings']['rules_best_answer'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Best answer author reward'),
+        '#description'   => t('The amount of !points to award to the author of the best answer', userpoints_translation()),
+        '#default_value' => $rules_config['rules_flag_answers_best_answer'],
+      );
+      $form['answers_userpoints_answer_settings']['rules_best_answer_user'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Best answer question reward'),
+        '#description'   => t('The amount of !points to award to the question author for flagging the best answer', userpoints_translation()),
+        '#default_value' => $rules_config['rules_flag_answers_best_answer_user'],
+      );
+      $form['answers_userpoints_answer_settings']['rules_own_best_answer'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Own best answer reward'),
+        '#description'   => t('The amount of !points to award when the question author is the best answer author', userpoints_translation()),
+        '#default_value' => $rules_config['answers_userpoints_flag_answers_own_best_answer'],
+      );
+
+      // Add in a submit handler *before* the standard handler.
+      $form['#submit'][] = 'answers_userpoints_answer_settings_form_submit';
+
+      break;
+  }
+}
+
+/**
+ * Process best answer configuration settings.
+ */
+function answers_userpoints_answer_settings_form_submit($form, &$form_state) {
+
+  $rules_voteup_question = $form_state['values']['rules_voteup_question'];
+  $rules_votedown_question = $form_state['values']['rules_votedown_question'];
+  $rules_votedown_question_cost = $form_state['values']['rules_votedown_question_cost'];
+  $rules_voteup_answer = $form_state['values']['rules_voteup_answer'];
+  $rules_votedown_answer = $form_state['values']['rules_votedown_answer'];
+  $rules_best_answer = $form_state['values']['rules_best_answer'];
+  $rules_best_answer_user = $form_state['values']['rules_best_answer_user'];
+  $rules_own_best_answer = $form_state['values']['rules_own_best_answer'];
+
+  $rules = array('rules_voteup_question', 'rules_voteup_question_cancel',
+    'rules_votedown_question', 'rules_votedown_question_cancel',
+    'rules_voteup_answer', 'rules_voteup_answer_cancel',
+    'rules_votedown_answer', 'rules_votedown_answer_cancel',
+    'rules_flag_answers_best_answer', 'rules_unflag_answers_best_answer',
+    'answers_userpoints_flag_answers_own_best_answer',
+    'answers_userpoints_unflag_answers_own_best_answer',
+  );
+
+  foreach ($rules as $key) {
+
+    $update = FALSE;
+    $rule = rules_config_load($key);
+    foreach ($rule->actions() as $action) {
+
+      switch ($key) {
+        case 'rules_voteup_question':
+
+          if ($action->settings['operation'] == 'addPoints'
+            && $action->settings['user:select'] == 'node:author') {
+
+            if ($action->settings['points'] != $rules_voteup_question) {
+              $action->settings['points'] = $rules_voteup_question;
+              $update = TRUE;
+            }
+
+          }
+          break;
+
+        case 'rules_voteup_question_cancel':
+          if ($action->settings['operation'] == 'addPoints'
+            && $action->settings['user:select'] == 'node:author') {
+
+            if ($action->settings['points'] != $rules_voteup_question * -1) {
+              $action->settings['points'] = $rules_voteup_question * -1;
+              $update = TRUE;
+            }
+
+          }
+          break;
+
+        case 'rules_votedown_question':
+          if ($action->settings['operation'] == 'removePoints') {
+
+            if ($action->settings['user:select'] == 'node:author') {
+
+              if ($action->settings['points'] != $rules_votedown_question * -1) {
+                $action->settings['points'] = $rules_votedown_question * -1;
+                $update = TRUE;
+              }
+
+            }
+            elseif ($action->settings['user:select'] == 'vote:user') {
+              if ($action->settings['points'] != $rules_votedown_question_cost * -1) {
+                $action->settings['points'] = $rules_votedown_question_cost * -1;
+                $update = TRUE;
+              }
+            }
+          }
+
+          break;
+
+        case 'rules_votedown_question_cancel':
+          if ($action->settings['operation'] == 'deletePoints') {
+
+            if ($action->settings['user:select'] == 'node:author') {
+
+              if ($action->settings['points'] != $rules_votedown_question) {
+                $action->settings['points'] = $rules_votedown_question;
+                $update = TRUE;
+              }
+
+            }
+            elseif ($action->settings['user:select'] == 'vote:user') {
+              if ($action->settings['points'] != $rules_votedown_question_cost) {
+                $action->settings['points'] = $rules_votedown_question_cost;
+                $update = TRUE;
+              }
+            }
+          }
+          break;
+
+        case 'rules_voteup_answer':
+          if ($action->settings['operation'] == 'addPoints'
+            && $action->settings['user:select'] == 'node:author') {
+
+            if ($action->settings['points'] != $rules_voteup_answer) {
+              $action->settings['points'] = $rules_voteup_answer;
+              $update = TRUE;
+            }
+
+          }
+          break;
+
+        case 'rules_voteup_answer_cancel':
+          if ($action->settings['operation'] == 'addPoints'
+            && $action->settings['user:select'] == 'node:author') {
+
+            if ($action->settings['points'] != $rules_voteup_answer * -1) {
+              $action->settings['points'] = $rules_voteup_answer * -1;
+              $update = TRUE;
+            }
+
+          }
+          break;
+
+        case 'rules_votedown_answer':
+          if ($action->settings['operation'] == 'deletePoints') {
+
+            if ($action->settings['user:select'] == 'node:author') {
+
+              if ($action->settings['points'] != $rules_votedown_question * -1) {
+                $action->settings['points'] = $rules_votedown_question * -1;
+                $update = TRUE;
+              }
+
+            }
+            elseif ($action->settings['user:select'] == 'vote:user') {
+              if ($action->settings['points'] != $rules_votedown_answer * -1) {
+                $action->settings['points'] = $rules_votedown_answer * -1;
+                $update = TRUE;
+              }
+            }
+          }
+          break;
+
+        case 'rules_votedown_answer_cancel':
+          if ($action->settings['operation'] == 'addPoints') {
+
+            if ($action->settings['user:select'] == 'node:author') {
+
+              if ($action->settings['points'] != $rules_votedown_question) {
+                $action->settings['points'] = $rules_votedown_question;
+                $update = TRUE;
+              }
+
+            }
+            elseif ($action->settings['user:select'] == 'vote:user') {
+              if ($action->settings['points'] != $rules_votedown_answer) {
+                $action->settings['points'] = $rules_votedown_answer;
+                $update = TRUE;
+              }
+            }
+          }
+          break;
+
+        case 'rules_flag_answers_best_answer':
+          if ($action->settings['operation'] == 'addPoints') {
+            if ($action->settings['user:select'] == 'flagged-node:author') {
+
+              if ($action->settings['points'] != $rules_best_answer) {
+                $action->settings['points'] = $rules_best_answer;
+                $update = TRUE;
+              }
+            }
+            elseif ($action->settings['user:select'] == 'flagging-user') {
+              if ($action->settings['points'] != $rules_best_answer_user) {
+                $action->settings['points'] = $rules_best_answer_user;
+                $update = TRUE;
+              }
+            }
+
+          }
+          break;
+
+        case 'rules_unflag_answers_best_answer':
+          if ($action->settings['operation'] == 'addPoints') {
+            if ($action->settings['user:select'] == 'flagged-node:author') {
+              if ($action->settings['points'] != $rules_best_answer * -1) {
+                $action->settings['points'] = $rules_best_answer * -1;
+                $update = TRUE;
+              }
+            }
+          }
+          elseif ($action->settings['operation'] == 'removePoints') {
+            if ($action->settings['user:select'] == 'flagging-user') {
+              if ($action->settings['points'] != $rules_best_answer_user * -1) {
+                $action->settings['points'] = $rules_best_answer_user * -1;
+                $update = TRUE;
+              }
+            }
+
+          }
+          break;
+
+        case 'answers_userpoints_flag_answers_own_best_answer':
+          if ($action->settings['operation'] == 'addPoints') {
+            if ($action->settings['user:select'] == 'flagging-user') {
+              if ($action->settings['points'] != $rules_own_best_answer) {
+                $action->settings['points'] = $rules_own_best_answer;
+                $update = TRUE;
+              }
+            }
+
+          }
+          break;
+
+        case 'answers_userpoints_unflag_answers_own_best_answer':
+          if ($action->settings['operation'] == 'removePoints') {
+            if ($action->settings['user:select'] == 'flagging-user') {
+              if ($action->settings['points'] != $rules_own_best_answer * -1) {
+                $action->settings['points'] = $rules_own_best_answer * -1;
+                $update = TRUE;
+              }
+            }
+
+          }
+          break;
+
+      }
+
+      if ($update) {
+        $rule->save();
+        drupal_set_message(check_plain(format_string('Updated !rule', array('!rule' => $key))));
+
+      }
+
+    }
+
+  }
+
+}

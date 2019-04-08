@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * An example module illustrating how to use the answers_lock api.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function answers_lock_example_install() {
+  variable_set('answers_lock_example_lock_questions_p', 0);
+  foreach (answers_all_questions() as $question) {
+    answers_question_lock_set($question, 'answers_lock_example');
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function answers_lock_example_uninstall() {
+  variable_del('answers_lock_example_lock_questions_p');
+  foreach (answers_all_questions() as $question) {
+    answers_question_lock_unset($question, 'answers_lock_example');
+  }
+}

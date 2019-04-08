@@ -114,13 +114,12 @@ class HelpfulForm extends FormBase {
     $form['helpful'] = [
       '#type' => 'radios',
       '#multiple' => FALSE,
-      '#title' => $this->t('Was this helpful?'),
       '#options' => [
-        'yes' => $this->t('Yes (@count @users)', [
+        'yes' => $this->t('Hilfreich (@count @users)', [
           '@count' => $this->answer->getHelpfulVoteCount('yes'),
           '@users' => ($this->answer->getHelpfulVoteCount('yes') == 1 ? $this->t('user') : $this->t('users')),
         ]),
-        'no' => $this->t('No (@count @users)', [
+        'no' => $this->t('Nicht hilfreich (@count @users)', [
           '@count' => $this->answer->getHelpfulVoteCount('no'),
           '@users' => ($this->answer->getHelpfulVoteCount('no') == 1 ? $this->t('user') : $this->t('users')),
         ]),

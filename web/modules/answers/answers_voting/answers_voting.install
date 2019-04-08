@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the answers module.
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * Defines a default rate widget for questions and answers.
+ */
+function answers_voting_install() {
+  $answers_rate_widget = new stdClass();
+  $answers_rate_widget->name = 'answers_up_down';
+  $answers_rate_widget->tag = 'vote';
+  $answers_rate_widget->title = 'Answers Up Down';
+  $answers_rate_widget->node_types = array('answers_answer', 'answers_question');
+  $answers_rate_widget->comment_types = array();
+  $answers_rate_widget->options = array(array(1, 1), array(-1, -1));
+  $answers_rate_widget->template = 'number_up_down';
+  $answers_rate_widget->node_display = 0;
+  $answers_rate_widget->comment_display = 0;
+  $answers_rate_widget->node_display_mode = 1;
+  $answers_rate_widget->teaser_display_mode = 1;
+  $answers_rate_widget->comment_display_mode = 1;
+  $answers_rate_widget->roles = array(
+    2 => 2,
+    1 => 0,
+  );
+  $answers_rate_widget->allow_voting_by_author = 0;
+  $answers_rate_widget->noperm_behaviour = 1;
+  $answers_rate_widget->displayed = 1;
+  $answers_rate_widget->displayed_just_voted = 1;
+  $answers_rate_widget->description_in_compact = 1;
+  $answers_rate_widget->value_type = 'points';
+  $answers_rate_widget->theme = 'rate_template_number_up_down';
+  $answers_rate_widget->css = drupal_get_path('module', 'answers_voting') . '/css/answers_voting.css';
+  $answers_rate_widget->delete_vote_on_second_click = 1;
+  $answers_rate_widget->translate = 1;
+  $answers_rate_widget->use_source_translation = 1;
+
+  $new_widgets = variable_get('rate_widgets', array());
+  $new_widgets[] = $answers_rate_widget;
+  variable_set('rate_widgets', $new_widgets);
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Removes the default rate widget.
+ */
+function answers_voting_uninstall() {
+  $widgets = variable_get('rate_widgets', NULL);
+  foreach ($widgets as $widget_id => $widget) {
+    if ($widget->name = 'answers_up_down') {
+      unset($widgets[$widget_id]);
+    }
+    variable_set('rate_widgets', $widgets);
+  }
+}

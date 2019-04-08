@@ -1,0 +1,12 @@
+name = Answers Best Answer
+description = Mark (flag) an answer as the best one for a concrete question.
+dependencies[] = answers
+dependencies[] = flag
+package = Answers
+core = 7.x
+
+; Information added by Drupal.org packaging script on 2018-11-13
+version = "7.x-4.0-rc3"
+core = "7.x"
+project = "answers"
+datestamp = "1542128884"

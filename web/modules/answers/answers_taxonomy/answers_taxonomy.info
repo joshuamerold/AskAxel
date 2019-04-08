@@ -1,0 +1,24 @@
+name = Answers Taxonomy
+description = Allow users to tag questions
+core = 7.x
+package = Answers
+dependencies[] = answers
+dependencies[] = features
+dependencies[] = taxonomy
+dependencies[] = views
+datestamp = 1475379240
+files[] = answers_taxonomy.test
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[field_base][] = answers_tags
+features[field_instance][] = node-answers_question-answers_tags
+features[taxonomy][] = answers_taxonomy_answers_tags
+features[taxonomy_display][] = answers_taxonomy_answers_tags
+features[views_view][] = answers_tags
+features_exclude[dependencies][ctools] = ctools
+
+; Information added by Drupal.org packaging script on 2018-11-13
+version = "7.x-4.0-rc3"
+core = "7.x"
+project = "answers"
+datestamp = "1542128884"

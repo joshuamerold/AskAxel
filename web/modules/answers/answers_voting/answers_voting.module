@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * @file
+ * The answers_voting module.
+ */
+
+/**
+ * Implements hook_node_view().
+ *
+ * Adding the voting widget manually.
+ */
+function answers_voting_node_view($node, $view_mode = 'full') {
+  if (($view_mode == 'full' && $node->type == 'answers_question') || ($view_mode == 'answers_full_node' && $node->type == 'answers_answer')) {
+    $node->content['answersRateWidget'] = array(
+      '#type'   => 'markup',
+      '#markup' => rate_embed($node, 'answers_up_down', RATE_FULL),
+      '#weight' => 98,
+    );
+  }
+}
+
+/**
+ * Implements hook_views_default_views_alter().
+ *
+ * Adding votes column to questions view, and votes order criteria to
+ * answers by question view.
+ */
+function answers_voting_views_default_views_alter(&$views) {
+  if (array_key_exists('question_answers', $views)) {
+    $views['question_answers']->tag = ($views['question_answers']->tag == '' ? '' : $views['question_answers']->tag . ', ') . 'answers_voting';
+
+    $handler =& $views['question_answers']->display['default']->handler;
+
+    /* Relationship: Content: Vote results */
+    $handler->display->display_options['relationships']['votingapi_cache']['id'] = 'votingapi_cache';
+    $handler->display->display_options['relationships']['votingapi_cache']['table'] = 'node';
+    $handler->display->display_options['relationships']['votingapi_cache']['field'] = 'votingapi_cache';
+    $handler->display->display_options['relationships']['votingapi_cache']['votingapi'] = array(
+      'value_type' => 'points',
+      'tag' => '',
+      'function' => 'sum',
+    );
+
+    /* Remove and store 'created' sort temporarily */
+    $created_sort = $handler->display->display_options['sorts']['created'];
+    unset($handler->display->display_options['sorts']['created']);
+
+    /* Sort criterion: Vote results: Value */
+    $handler->display->display_options['sorts']['value']['id'] = 'value';
+    $handler->display->display_options['sorts']['value']['table'] = 'votingapi_cache';
+    $handler->display->display_options['sorts']['value']['field'] = 'value';
+    $handler->display->display_options['sorts']['value']['relationship'] = 'votingapi_cache';
+    $handler->display->display_options['sorts']['value']['order'] = 'DESC';
+    $handler->display->display_options['sorts']['value']['coalesce'] = 1;
+
+    /* Replace 'created' sort (thereby moving it to the end of the list of sorts) */
+    $handler->display->display_options['sorts']['created'] = $created_sort;
+  }
+  if (array_key_exists('questions', $views)) {
+    $views['questions']->tag = ($views['questions']->tag == '' ? '' : $views['questions']->tag . ', ') . 'answers_voting';
+
+    $handler =& $views['questions']->display['default']->handler;
+
+    $handler->display->display_options['style_options']['columns'] += array(
+      'value' => 'value',
+    );
+    $handler->display->display_options['style_options']['info'] += array(
+      'value' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => 'views-align-center',
+        'separator' => '',
+        'empty_column' => 0,
+      ),
+    );
+
+    /* Relationship: Content: Vote results */
+    $handler->display->display_options['relationships']['votingapi_cache']['id'] = 'votingapi_cache';
+    $handler->display->display_options['relationships']['votingapi_cache']['table'] = 'node';
+    $handler->display->display_options['relationships']['votingapi_cache']['field'] = 'votingapi_cache';
+    $handler->display->display_options['relationships']['votingapi_cache']['votingapi'] = array(
+      'value_type' => 'points',
+      'tag' => '',
+      'function' => 'sum',
+    );
+
+    $old_fields = $handler->display->display_options['fields'];
+    $handler->display->display_options['fields'] = array();
+    /* Field: Vote results: Value */
+    $handler->display->display_options['fields']['value']['id'] = 'value';
+    $handler->display->display_options['fields']['value']['table'] = 'votingapi_cache';
+    $handler->display->display_options['fields']['value']['field'] = 'value';
+    $handler->display->display_options['fields']['value']['relationship'] = 'votingapi_cache';
+    $handler->display->display_options['fields']['value']['label'] = 'Votes';
+    $handler->display->display_options['fields']['value']['element_label_colon'] = FALSE;
+    $handler->display->display_options['fields']['value']['precision'] = '0';
+
+    $handler->display->display_options['fields'] += $old_fields;
+  }
+}

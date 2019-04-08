@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * @file
+ * Tests for answers.module.
+ */
+
+/**
+ * Tests the functionality of the answers_userpoints module admin settings.
+ */
+class AnswersTestCase extends DrupalWebTestCase {
+  protected $answersUser;
+
+  /**
+   * Test getInfo.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Answers',
+      'description' => 'Answers Tests',
+      'group' => 'Answers',
+    );
+  }
+
+  /**
+   * Enable modules and create users with specific permissions.
+   */
+  public function setUp() {
+    parent::setUp('answers');
+    $this->answersUser = $this->drupalCreateUser(array('create answers_question content', 'create answers_answer content'));
+  }
+
+  /**
+   * Check node labels.
+   */
+  public function testLabels() {
+
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->answersUser);
+
+    $this->drupalGet('/node/add/answers-question');
+    $this->assertResponse(200);
+    $this->assertTitle(t('Create Question | Drupal'), 'The title on the create answer_question page is "Create Question | Drupal".');
+
+    $this->assertRaw('<label for="edit-title">Title <span class="form-required" title="This field is required.">*</span></label>', 'The question title is Title');
+    $this->assertRaw('<label for="edit-body-und-0-value">Body </label>', 'The question body is Body');
+
+    $this->assertFieldByName('title', '', 'The title field exists');
+    $this->assertFieldByName("body[$langcode][0][value]", '', 'The body field exists');
+
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+
+    $this->drupalPost('/node/add/answers-question', $question, 'Save');
+
+    $this->assertRaw('<h2 class="new-answer-form-title">Your Answer</h2>', 'Answers Form exists');
+
+    $this->assertRaw('<div class="view-header">
+      No Answers yet.    </div>', 'No Answers yet');
+    $this->assertNoRaw('<label for="edit-body-und-0-value">Body </label>', 'No answer body label');
+    $this->assertNoFieldByName('title', '', 'No title field exists');
+    $this->assertFieldByName("body[$langcode][0][value]", '', 'The body field exists');
+
+    $answer = array();
+    $answer["body[$langcode][0][value]"] = "42 cords of wood.";
+
+    $this->drupalPost('/node/1', $answer, 'Save');
+
+    $this->assertRaw('<h2 class="new-answer-form-title">Your Answer</h2>', 'Answers Form exists');
+    $this->assertRaw('<div class="view-header">
+      1 Answer    </div>', '1 Answer');
+
+    $answer["body[$langcode][0][value]"] = "Woodchucks don't chuck wood.";
+
+    $this->drupalPost('/node/1', $answer, 'Save');
+    $this->assertRaw('<h2 class="new-answer-form-title">Your Answer</h2>', 'Answers Form exists');
+    $this->assertRaw('<div class="view-header">
+      2 Answers    </div>', '2 Answers');
+  }
+
+  /**
+   * Tests permissions for default roles.
+   */
+  public function testDefaultPermissions() {
+    $admin = $this->drupalCreateUser(array('administer permissions'));
+
+    $this->drupalLogin($admin);
+    $this->drupalGet('admin/people/permissions');
+
+    // Authenticated Users.
+    $this->assertFieldChecked('edit-2-create-answers-question-content', "Authenticated role has create question.");
+    $this->assertFieldChecked('edit-2-edit-own-answers-question-content', "Authenticated role has edit own question.");
+    $this->assertFieldChecked('edit-2-create-answers-answer-content', "Authenticated role has create answer`.");
+    $this->assertFieldChecked('edit-2-edit-own-answers-answer-content', "Authenticated role has edit own answer`.");
+
+    // Administrators.
+    $this->assertFieldChecked('edit-3-create-answers-question-content', "Administrators role have create question.");
+    $this->assertFieldChecked('edit-3-edit-own-answers-question-content', "Administrators role has edit own question.");
+    $this->assertFieldChecked('edit-3-edit-any-answers-question-content', "Administrators role has edit any question.");
+    $this->assertFieldChecked('edit-3-delete-own-answers-question-content', "Administrators role has delete own question.");
+    $this->assertFieldChecked('edit-3-delete-any-answers-question-content', "Administrators role has delete any question.");
+    $this->assertFieldChecked('edit-3-create-answers-answer-content', "Administrators role has create answer.");
+    $this->assertFieldChecked('edit-3-edit-own-answers-answer-content', "Administrators role has edit own answer.");
+    $this->assertFieldChecked('edit-3-edit-any-answers-question-content', "Administrators role has edit any answer.");
+    $this->assertFieldChecked('edit-3-delete-own-answers-answer-content', "Administrators role has delete own answer.");
+    $this->assertFieldChecked('edit-3-delete-any-answers-answer-content', "Administrators role has delete any answer.");
+  }
+
+}

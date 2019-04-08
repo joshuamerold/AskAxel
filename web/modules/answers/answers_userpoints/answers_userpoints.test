@@ -1,0 +1,434 @@
+<?php
+
+/**
+ * @file
+ * Tests for answers_userpoints.module.
+ */
+
+/**
+ * Tests the functionality of the answers_userpoints module admin settings.
+ */
+class AnswersUserPointsTestCase extends DrupalWebTestCase {
+  protected $questionUser;
+  protected $answerUser;
+
+  /**
+   * Test getInfo.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Answers Userpoints',
+      'description' => 'Test Userpoint Answers settings',
+      'group' => 'Answers',
+    );
+  }
+
+  /**
+   * Enable modules and create users with specific permissions.
+   */
+  public function setUp() {
+    parent::setUp('answers_userpoints');
+
+    $permissions = array('create answers_question content', 'create answers_answer content');
+    $this->questionUser = $this->drupalCreateUser($permissions);
+    $this->answerUser = $this->drupalCreateUser($permissions);
+    @userpoints_get_current_points($this->answerUser->uid);
+    @userpoints_get_current_points($this->questionUser->uid);
+  }
+
+  /**
+   * Test Best Answer points for own answer.
+   */
+  public function testOwnBestAnswer() {
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/add/answers-question');
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $answer = array();
+    $answer["body[$langcode][0][value]"] = "4096 cords of wood.";
+
+    $this->drupalPost('node/1', $answer, 'Save');
+    $this->assertLink('Best', 0, 'Best Answer link exists');
+    $this->clickLink('Best', 0);
+
+    $this->assertEqual(2, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = 2');
+
+    $this->clickLink('Unbest', 0);
+    $this->assertEqual(0, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = 0');
+  }
+
+  /**
+   * Test best answer for other's answer.
+   */
+  public function testBestAnswer() {
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/add/answers-question');
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->answerUser);
+    $this->drupalGet('node/1');
+    $answer = array();
+    $answer["body[$langcode][0][value]"] = "42 cords of wood.";
+
+    $this->drupalPost('node/1', $answer, 'Save');
+
+    $this->drupalLogout();
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/1');
+
+    $this->assertLink('Best', 0, 'Best Answer link exists');
+    $this->clickLink('Best', 0);
+    $this->assertEqual(2, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+
+    $this->assertEqual(15, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+
+    $this->clickLink('Unbest', 0);
+    $this->assertEqual(0, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+
+    $this->assertEqual(0, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+
+  }
+
+  /**
+   * Tests UpVoting a Question.
+   */
+  public function testUpVoteQuestion() {
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/add/answers-question');
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->answerUser);
+    $this->drupalGet('node/1');
+
+    $this->clickLink('1', 0, 'UpVote Question');
+    $this->assertEqual(5, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+    $this->clickLink('1', 0, 'Cancel UpVote Question');
+    $this->assertEqual(0, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+  }
+
+  /**
+   * Tests DownVoting a Question.
+   */
+  public function testDownVoteQuestion() {
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/add/answers-question');
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->answerUser);
+    $this->drupalGet('node/1');
+
+    $this->clickLink('-1', 0, 'DownVote Question');
+
+    $this->assertEqual(-2, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+    $this->assertEqual(-1, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+
+    $this->clickLink('-1', 0, 'Cancel DownVote Question');
+
+    $this->assertEqual(0, userpoints_get_current_points($this->questionUser->uid), 'Question author\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+    $this->assertEqual(0, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+  }
+
+  /**
+   * Test DownVoting an Answer.
+   */
+  public function testDownVoteAnswer() {
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/add/answers-question');
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->answerUser);
+    $this->drupalGet('node/1');
+    $answer = array();
+    $answer["body[$langcode][0][value]"] = "42 cords of wood.";
+
+    $this->drupalPost('node/1', $answer, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/1');
+
+    $this->clickLink('-1', 0, 'DownVote Answer');
+    $this->assertEqual(-1, userpoints_get_current_points($this->questionUser->uid), 'voter\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+    $this->assertEqual(-2, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+    $this->clickLink('-1', 0, 'Cancel DownVote Answer');
+    $this->assertEqual(0, userpoints_get_current_points($this->questionUser->uid), 'voter\'s points = ' . userpoints_get_current_points($this->questionUser->uid));
+    $this->assertEqual(0, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+  }
+
+  /**
+   * Tests UpVoting an Answer.
+   */
+  public function testUpVoteAnswer() {
+    $langcode = LANGUAGE_NONE;
+
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/add/answers-question');
+    $question = array();
+    $question['title'] = 'Woodchucks';
+    $question["body[$langcode][0][value]"] = "How much wood could a woodchuck chuck?";
+    $this->drupalPost('node/add/answers-question', $question, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->answerUser);
+    $this->drupalGet('node/1');
+    $answer = array();
+    $answer["body[$langcode][0][value]"] = "42 cords of wood.";
+
+    $this->drupalPost('node/1', $answer, 'Save');
+
+    $this->drupalLogout();
+    $this->drupalLogin($this->questionUser);
+    $this->drupalGet('node/1');
+
+    $this->clickLink('1', 0, 'UpVote Answer');
+    $this->assertEqual(10, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+    $this->clickLink('1', 0, 'Cancel UpVote Answer');
+    $this->assertEqual(0, userpoints_get_current_points($this->answerUser->uid), 'Answer author\'s points = ' . userpoints_get_current_points($this->answerUser->uid));
+  }
+
+  /**
+   * Confirm that the "Points" awarded can be updated correctly.
+   */
+  public function testAdminConfig() {
+    $bigUser = $this->drupalCreateUser(array('administer content types'));
+    $this->drupalLogin($bigUser);
+
+    $this->drupalGet('admin/config/content/answers');
+    $this->assertResponse(200);
+
+    $this->assertNoDuplicateIds('There are no duplicate IDs');
+
+    $this->assertFieldByName('rules_voteup_question', '5', 'The Voteup-question default points.');
+    $this->assertFieldByName('rules_votedown_question', '2', 'The Votedown-question cost default points.');
+    $this->assertFieldByName('rules_votedown_question_cost', '1', 'The Votedown-question cost default points.');
+    $this->assertFieldByName('rules_voteup_answer', '10', 'The Voteup-answer default points.');
+    $this->assertFieldByName('rules_votedown_answer', '1', 'The Votedown-answer cost default points.');
+    $this->assertFieldByName('rules_best_answer', '15', 'The Best Answer default points.');
+    $this->assertFieldByName('rules_best_answer_user', '2', 'The Best Answer questioner default points.');
+    $this->assertFieldByName('rules_own_best_answer', '2', 'The Best Answer own default points.');
+
+    $edit = array(
+      'rules_voteup_question' => '50',
+      'rules_votedown_question' => '20',
+      'rules_votedown_question_cost' => '10',
+      'rules_voteup_answer' => '100',
+      'rules_votedown_answer' => '10',
+      'rules_best_answer' => '150',
+      'rules_best_answer_user' => '20',
+      'rules_own_best_answer' => '20',
+
+    );
+    $this->drupalPost('admin/config/content/answers', $edit, 'Save configuration');
+
+    $this->assertFieldByName('rules_voteup_question', '50', 'The Voteup-question custom points.');
+    $this->assertFieldByName('rules_votedown_question', '20', 'The Votedown-question cost custom points.');
+    $this->assertFieldByName('rules_votedown_question_cost', '10', 'The Votedown-question cost default points.');
+    $this->assertFieldByName('rules_voteup_answer', '100', 'The Voteup-answer custom points.');
+    $this->assertFieldByName('rules_votedown_answer', '10', 'The Votedown-answer cost custom points.');
+    $this->assertFieldByName('rules_best_answer', '150', 'The Best Answer custom points.');
+    $this->assertFieldByName('rules_best_answer_user', '20', 'The Best Answer questioner custom points.');
+    $this->assertFieldByName('rules_own_best_answer', '20', 'The Best Answer own custom points.');
+
+    $rules = array(
+      'rules_voteup_question' => FALSE,
+      'rules_voteup_question_cancel' => FALSE,
+      'rules_votedown_question' => FALSE,
+      'rules_votedown_question_cancel' => FALSE,
+      'rules_voteup_answer' => FALSE,
+      'rules_voteup_answer_cancel' => FALSE,
+      'rules_votedown_answer' => FALSE,
+      'rules_votedown_answer_cancel' => FALSE,
+      'rules_flag_answers_best_answer' => FALSE,
+      'rules_unflag_answers_best_answer' => FALSE,
+      'answers_userpoints_flag_answers_own_best_answer' => FALSE,
+      'answers_userpoints_unflag_answers_own_best_answer' => FALSE,
+    );
+
+    // Reset internal cache.
+    entity_load('rules_config', array(), array(), TRUE);
+
+    foreach ($rules as $key => $value) {
+
+      $rule = rules_config_load($key);
+      foreach ($rule->actions() as $action) {
+
+        switch ($key) {
+          case 'rules_voteup_question':
+            if ($action->settings['operation'] == 'addPoints'
+              && $action->settings['user:select'] == 'node:author') {
+              $this->assertEqual($action->settings['points'], 50, 'custom rules_voteup_question =  ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+            }
+            break;
+
+          case 'rules_voteup_question_cancel':
+            if ($action->settings['operation'] == 'addPoints'
+              && $action->settings['user:select'] == 'node:author') {
+              $this->assertEqual($action->settings['points'], -50, 'custom rules_voteup_question_cancel =  ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+            }
+            break;
+
+          case 'rules_votedown_question':
+            if ($action->settings['operation'] == 'removePoints') {
+
+              if ($action->settings['user:select'] == 'node:author') {
+                $this->assertEqual($action->settings['points'], -20, 'custom rules_votedown_question author =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+
+              }
+              elseif ($action->settings['user:select'] == 'vote:user') {
+                $this->assertEqual($action->settings['points'], -10, 'custom rules_votedown_question voter =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+              }
+            }
+            break;
+
+          case 'rules_votedown_question_cancel':
+            if ($action->settings['operation'] == 'deletePoints') {
+
+              if ($action->settings['user:select'] == 'node:author') {
+                $this->assertEqual($action->settings['points'], 20, 'custom rules_votedown_question_cancel author =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+
+              }
+              elseif ($action->settings['user:select'] == 'vote:user') {
+                $this->assertEqual($action->settings['points'], 10, 'custom rules_votedown_question_cancel voter =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+              }
+            }
+            break;
+
+          case 'rules_voteup_answer':
+            if ($action->settings['operation'] == 'addPoints'
+              && $action->settings['user:select'] == 'node:author') {
+              $this->assertEqual($action->settings['points'], 100, 'custom rules_voteup_answer = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+
+            }
+            break;
+
+          case 'rules_voteup_answer_cancel':
+            if ($action->settings['operation'] == 'addPoints'
+              && $action->settings['user:select'] == 'node:author') {
+              $this->assertEqual($action->settings['points'], -100, 'custom rules_voteup_answer_cancel = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+
+            }
+
+            break;
+
+          case 'rules_votedown_answer':
+            if ($action->settings['operation'] == 'deletePoints') {
+
+              if ($action->settings['user:select'] == 'node:author') {
+                $this->assertEqual($action->settings['points'], -20, 'custom rules_votedown_answer author =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+
+              }
+              elseif ($action->settings['user:select'] == 'vote:user') {
+                $this->assertEqual($action->settings['points'], -10, 'custom rules_votedown_answer voter =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+              }
+            }
+            break;
+
+          case 'rules_votedown_answer_cancel':
+            if ($action->settings['operation'] == 'addPoints') {
+
+              if ($action->settings['user:select'] == 'node:author') {
+                $this->assertEqual($action->settings['points'], 20, 'custom rules_votedown_answer_cancel author =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+
+              }
+              elseif ($action->settings['user:select'] == 'vote:user') {
+                $this->assertEqual($action->settings['points'], 10, 'custom rules_votedown_answer_cancel voter =  ' . $action->settings['points']);
+                $rules[$key] = TRUE;
+              }
+            }
+            break;
+
+          case 'rules_flag_answers_best_answer':
+            if ($action->settings['user:select'] == 'flagged-node:author') {
+              $this->assertEqual($action->settings['points'], 150, 'custom rules_flag_answers_best_answer author = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+
+            }
+            elseif ($action->settings['user:select'] == 'flagging-user') {
+              $this->assertEqual($action->settings['points'], 20, 'custom rules_flag_answers_best_answer user = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+            }
+            break;
+
+          case 'rules_unflag_answers_best_answer':
+            if ($action->settings['user:select'] == 'flagged-node:author') {
+              $this->assertEqual($action->settings['points'], -150, 'custom rules_unflag_answers_best_answer author = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+
+            }
+            elseif ($action->settings['user:select'] == 'flagging-user') {
+              $this->assertEqual($action->settings['points'], -20, 'custom rules_unflag_answers_best_answer user = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+            }
+            break;
+
+          case 'answers_userpoints_flag_answers_own_best_answer':
+            if ($action->settings['user:select'] == 'flagging-user') {
+              $this->assertEqual($action->settings['points'], 20, 'custom answers_userpoints_flag_answers_own_best_answer user = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+            }
+            break;
+
+          case 'answers_userpoints_unflag_answers_own_best_answer':
+            if ($action->settings['user:select'] == 'flagged-node:author') {
+              $this->assertEqual($action->settings['points'], -150, 'custom answers_userpoints_unflag_answers_own_best_answer author =  ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+
+            }
+            elseif ($action->settings['user:select'] == 'flagging-user') {
+              $this->assertEqual($action->settings['points'], -20, 'custom answers_userpoints_unflag_answers_own_best_answer user = ' . $action->settings['points']);
+              $rules[$key] = TRUE;
+            }
+            break;
+
+        }
+      }
+    }
+
+    foreach ($rules as $key => $value) {
+      $this->assertTrue($value, $key);
+    }
+
+  }
+
+}

@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the answers module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function answers_best_answer_install() {
+  variable_set('answers_best_answer_lock_questions_p', 0);
+  variable_set('answers_best_answer_old_lock_questions_p', 0);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function answers_best_answer_uninstall() {
+  variable_del('answers_best_answer_lock_questions_p');
+  variable_del('answers_best_answer_old_lock_questions_p');
+}

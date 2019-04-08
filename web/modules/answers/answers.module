@@ -1,0 +1,439 @@
+<?php
+
+/**
+ * @file
+ * The Answers module.
+ */
+
+module_load_include('inc', 'answers', 'includes/answers.lock');
+
+/**
+ * Implements hook_menu().
+ */
+function answers_menu() {
+  $items = array();
+
+  $items['admin/config/content/answers'] = array(
+    'title'              => 'Answers',
+    'description'        => 'Configure how the question/answer service operates',
+    'page callback'      => 'drupal_get_form',
+    'page arguments'     => array('answers_settings'),
+    'access arguments'   => array('administer content types'),
+    'type'               => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function answers_menu_alter(&$items) {
+  // Remove 'answers' from the 'add content' menu item in the 'navigation' menu.
+  // Thanks to http://drupal.stackexchange.com/questions/17643/how-to-hide-a-content-type-on-the-node-add-page
+  if (isset($items['node/add/answers-answer'])) {
+    $items['node/add/answers-answer']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function answers_permission() {
+  return array(
+    'manage answers content' => array(
+      'title' => t('Manage answers content'),
+      'description' => t('Edit any question or answer content.'),
+    ),
+  );
+}
+
+/**
+ * Returns the form definition for answers configuration page.
+ */
+function answers_settings() {
+  $form = array();
+  $form['answers_question_lock_settings'] = array(
+    '#type'          => 'fieldset',
+    '#title'         => t('Question Lock Settings'),
+    '#weight'        => -100,
+  );
+
+  $form['answers_question_lock_settings']['answers_question_lock_message'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Question lock message'),
+    '#description'   => t('Text to use to notify user that a question is locked'),
+    '#default_value' => variable_get('answers_question_lock_message', t('Note: This question is locked.')),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_init().
+ *
+ * Redirect to its related question when visiting an answer page, scrolling to
+ * the answer.
+ */
+function answers_init() {
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '') {
+    $node = node_load(arg(1));
+    if ($node != '') {
+      $node = entity_metadata_wrapper('node', $node);
+      if ($node->type->value() == 'answers_answer') {
+        drupal_goto('node/' . $node->answers_related_question->value()->nid, array('fragment' => 'node-' . $node->nid->value(), 'alias' => TRUE));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function answers_node_info() {
+  return array(
+    'answers_question' => array(
+      'name' => t('Question'),
+      'base' => 'answers',
+      'description' => t('A question which can be answered by other users.'),
+      'title_label' => t('Title'),
+      'locked' => TRUE,
+    ),
+    'answers_answer' => array(
+      'name' => t('Answer'),
+      'base' => 'answers',
+      'description' => t('An answer provided to question asked by a member of the community.'),
+      'has_title' => FALSE,
+      'locked' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ *
+ * Create a node view mode to avoid problems on views with full view mode.
+ */
+function answers_entity_info_alter(&$entity_info) {
+  $entity_info['node']['view modes']['answers_full_node'] = array(
+    'label' => t('answers_full_node'),
+    'custom settings' => TRUE,
+  );
+}
+
+/**
+ * Implements hook_node_access().
+ *
+ * Grant users with 'manage answers content' the ability to perform any op on
+ * any question or answer.
+ */
+function answers_node_access($node, $op, $account) {
+  $type = is_string($node) ? $node : $node->type;
+
+  if (($type == 'answers_answer' || $type == 'answers_question') &&
+       user_access('manage answers content', $account)) {
+    return NODE_ACCESS_ALLOW;
+  }
+  return NODE_ACCESS_IGNORE;
+}
+
+/**
+ * Implements hook_form().
+ */
+function answers_form($node, $form_state) {
+  return node_content_form($node, $form_state);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function answers_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'answers_answer_node_form') {
+    // Disallow adding an answer that is not attached to a question.
+    $node = $form['#node'];
+    if (!isset($node->answers_related_question[LANGUAGE_NONE][0]['target_id'])) {
+      drupal_set_message(t('You cannot post an answer without a question.'), 'error');
+      drupal_not_found();
+      exit;
+    }
+    // Disallow manually assigning an answer to a question.
+    hide($form['answers_related_question']);
+    $form['body'][LANGUAGE_NONE][0]['#title'] = '';
+  }
+  elseif ($form_id == 'answers_question_node_form') {
+    // Disallow manually setting the question lock.
+    hide($form['question_locks']);
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ *
+ * Add the view for answers to a question.
+ * Add the new answer form.
+ * Add the operations links to an answer node.
+ */
+function answers_node_view($node, $view_mode = 'full') {
+  module_load_include('inc', 'answers', 'includes/answers.lock');
+  if ($node->type == 'answers_question') {
+
+    if ($view_mode == 'full') {
+      if (answers_question_locked_p($node)) {
+        $node->content['lock_message'] = array(
+          '#markup' => variable_get('answers_question_lock_message', ''),
+          '#prefix' => '<div class="answers-question-locked-message">',
+          '#suffix' => '</div>',
+          '#weight' => -100,
+        );
+      }
+      if (answers_create_answer_permission_p($node)) {
+        global $user;
+        // Create an empty placeholder for an answer node.
+        $node_answer = array(
+          'uid' => $user->uid,
+          'name' => (isset($user->name) ? $user->name : ''),
+          'type' => 'answers_answer',
+          'language' => LANGUAGE_NONE,
+        );
+
+        // Set the node reference field of the answer to point to its question.
+        $node_answer['answers_related_question'][LANGUAGE_NONE][0]['target_id'] = $node->nid;
+        $form_state['build_info']['args'][] = (object) $node_answer;
+        form_load_include($form_state, 'inc', 'node', 'node.pages');
+
+        // Create a form to edit/save the placeholder answer.
+        $answer_form = drupal_build_form('answers_answer_node_form', $form_state);
+
+        // Add the form to the question page.
+        $node->content['new_answer_form'] = $answer_form;
+        $node->content['new_answer_form']['#weight'] = 150;
+        $node->content['new_answer_form']['new_answer_form_title'] = array(
+          '#theme' => 'html_tag',
+          '#tag' => 'h2',
+          '#attributes' => array('class' => 'new-answer-form-title'),
+          '#value' => t('Your Answer'),
+          '#weight' => -100,
+        );
+      }
+    }
+
+    // Include the answers in the content when view_mode is
+    // either 'search_index' or 'full'.
+    if ($view_mode == 'search_index' || $view_mode == 'full') {
+      $node->content['answers_list'] = array(
+        '#type'   => 'markup',
+        '#markup' => views_embed_view('question_answers', 'default', $node->nid),
+        '#weight' => 49,
+      );
+    }
+  }
+
+  if ($view_mode == 'answers_full_node' && $node->type == 'answers_answer') {
+    if (node_access('update', $node)) {
+      $node->content['links']['#links']['answers-answer-edit'] = array(
+        'title' => t('Edit'),
+        'href' => 'node/' . $node->nid . '/edit',
+      );
+    }
+    if (node_access('delete', $node)) {
+      $node->content['links']['#links']['answers-answer-delete'] = array(
+        'title' => t('Delete'),
+        'href' => 'node/' . $node->nid . '/delete',
+      );
+    }
+  }
+}
+
+/**
+ * Checks permissions access.
+ *
+ * Return NULL if the current user does not have permission to create an answer
+ * to the question.
+ */
+function answers_create_answer_permission_p($question) {
+  module_load_include('inc', 'answers', 'includes/answers.lock');
+  global $user;
+
+  $locked = answers_question_locked_p($question);
+
+  return (node_access('create', 'answers_answer')
+    // Question is not locked or user can override question locks.
+    && (!$locked || user_access('manage answers content', $user))
+  );
+}
+
+/**
+ * Implements hook_node_delete().
+ *
+ * Delete answers of some question when this one is deleted. On cascade.
+ *
+ * TODO: This is going to be obsolete (hopefully) when the patch been worked in:
+ * http://drupal.org/node/1368386 is commited to entityreference
+ */
+function answers_node_delete($node) {
+  if ($node->type == 'answers_question') {
+    $nids = db_query('SELECT entity_id FROM {field_data_answers_related_question} WHERE answers_related_question_target_id = :nid', array(':nid' => $node->nid))->fetchCol();
+    node_delete_multiple($nids);
+  }
+}
+
+/**
+ * Return all questions.
+ */
+function answers_all_questions() {
+  $query = new EntityFieldQuery();
+  $entities = $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'answers_question')
+    ->execute();
+
+  return (empty($entities)) ? $entities : entity_load('node', array_keys($entities['node']));
+}
+
+/**
+ * Return all answers to a question.
+ *
+ * @param object $question
+ *   A fully loaded question node.
+ */
+function answers_question_answers($question) {
+
+  $query = new EntityFieldQuery();
+  $entities = $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'answers_answer')
+    ->fieldCondition('answers_related_question', 'target_id', $question->nid, '=')
+    ->execute();
+
+  return empty($entities) ? array() : entity_load('node', array_keys($entities['node']));
+}
+
+/**
+ * Return the question to which an answer responds.
+ *
+ * @param object $answer
+ *   Either an answer node or an answer nid.
+ */
+function answers_answer_question($answer) {
+  return entity_metadata_wrapper('node', $answer)->answers_related_question->value();
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function answers_views_api() {
+  return array(
+    'api' => 3.0,
+    'path' => drupal_get_path('module', 'answers'),
+  );
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * See:
+ * http://www.metachunk.com/blog/adding-module-path-drupal-7-theme-registry.
+ */
+function answers_theme_registry_alter(&$theme_registry) {
+  $mod_path = drupal_get_path('module', 'answers');
+  // Munge on a copy.
+  $theme_registry_copy = $theme_registry;
+  _theme_process_registry($theme_registry_copy, 'phptemplate', 'theme_engine', 'pow', $mod_path);
+  $theme_registry += array_diff_key($theme_registry_copy, $theme_registry);
+  $hooks = array('node');
+  foreach ($hooks as $h) {
+    _answers_insert_after_first_element($theme_registry[$h]['theme paths'], $mod_path);
+  }
+}
+
+/**
+ * Helper function for re-ordering arrays (needed by theme_registry_alter).
+ */
+function _answers_insert_after_first_element(&$a, $element) {
+  if (is_array($a)) {
+    $first_element = array_shift($a);
+    array_unshift($a, $first_element, $element);
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function answers_preprocess_node(&$vars) {
+  _answers_check_type_theming_suggestion($vars, 'node__answers');
+}
+
+/**
+ * Implements hook_preprocess_comment().
+ */
+function answers_preprocess_comment(&$vars) {
+  _answers_check_type_theming_suggestion($vars, 'comment__node_answers');
+}
+
+/**
+ * Implements hook_preprocess_comment_wrapper().
+ */
+function answers_preprocess_comment_wrapper(&$vars) {
+  _answers_check_type_theming_suggestion($vars, 'comment_wrapper__node_answers');
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function answers_views_data() {
+
+  $data['views']['answers_count'] = array(
+    'title' => t('Answers Count'),
+    'help' => t('Shows the number of answers to a question.'),
+    'area' => array(
+      'handler' => 'AnswersCountViewsHandler',
+    ),
+  );
+
+  $data['answers']['table']['group'] = t('Answers');
+  $data['answers']['table']['join'] = array(
+    '#global' => array(),
+  );
+
+  $data['answers']['new_answers'] = array(
+    'title' => t('Has new content'),
+    'field' => array(
+      'handler' => 'AnswersNewContentViewsHandler',
+      'help' => t('Show a marker if the question is new or has new answers since last access.'),
+    ),
+  );
+
+  $data['answers']['new_answers_since_last_login'] = array(
+    'title' => t('Has new content since last login'),
+    'field' => array(
+      'handler' => 'AnswersNewContentSinceLastLoginViewsHandler',
+      'help' => t('Show a marker if the question is new or has new answers since last login.'),
+    ),
+  );
+
+  return $data;
+}
+
+/**
+ * Helper function for preprocess hooks.
+ */
+function _answers_check_type_theming_suggestion(&$vars, $theme_hook_suggestions) {
+  if ($vars['node']->type == 'answers_answer' || $vars['node']->type == 'answers_question') {
+    $vars['theme_hook_suggestions'][] = $theme_hook_suggestions;
+  }
+}
+
+/**
+ * Implements hook_views_post_render().
+ */
+function answers_views_post_render(&$view, &$output, &$cache) {
+
+  if ($view->name == 'question_answers') {
+    if (count($view->result)) {
+      foreach ($view->result as $object) {
+        node_tag_new($object);
+      }
+    }
+  }
+
+}

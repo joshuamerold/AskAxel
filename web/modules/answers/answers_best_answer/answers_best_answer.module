@@ -1,0 +1,461 @@
+<?php
+
+/**
+ * @file
+ * Support selection of 'Best Answers' for the 'Answers' module.
+ *
+ * This file allows question authors and site managers to select a best answer
+ * for a question.
+ *
+ * Only a single best answer can be selected.
+ *
+ * To configure the module, go to admin/config/content/answers. The site
+ * administrator can choose:
+ *   - Whether questions will automatically be locked after a best answer
+ *      is selected
+ *   - Whether best answers are locked (and cannot be changed) after a question
+ *      is locked
+ *
+ * Users with the 'manage answers content' permission can always set and modify
+ * best answers regardless of question locks.
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function answers_best_answer_form_alter(&$form, $form_state, $form_id) {
+
+  switch ($form_id) {
+
+    // Add settings for answers_best_answer to the answers settings form.
+    case 'answers_settings':
+
+      $form['answers_best_answer_settings'] = array(
+        '#type'          => 'fieldset',
+        '#title'         => 'Best Answer Settings',
+        '#weight'        => 10,
+      );
+
+      $old = variable_get('answers_best_answer_lock_questions_p', 0);
+
+      $form['answers_best_answer_settings']['answers_best_answer_lock_questions_p'] = array(
+        '#type'          => 'checkbox',
+        '#title'         => 'Lock questions after a "Best Answer" has been selected',
+        '#description'   => 'After a question author selects a "Best Answer", should users be blocked from adding new answers?',
+        '#default_value' => $old,
+      );
+
+      // Store the old value.
+      $form['answers_best_answer_settings']['answers_best_answer_old_lock_questions_p'] = array(
+        '#type'          => 'value',
+        '#value'         => $old,
+      );
+
+      $old = variable_get('answers_best_answer_lock_choice_p', 0);
+
+      $form['answers_best_answer_settings']['answers_best_answer_lock_choice_p'] = array(
+        '#type'          => 'checkbox',
+        '#title'         => 'Lock best answers',
+        '#description'   => 'When a question is locked, should the choice of best answer also be locked?',
+        '#default_value' => $old,
+      );
+
+      // Store the old value.
+      $form['answers_best_answer_settings']['answers_best_answer_old_lock_choice_p'] = array(
+        '#type'          => 'value',
+        '#value'         => $old,
+      );
+
+      // Add in a submit handler *before* the standard handler.
+      $form['#submit'][] = 'answers_best_answer_settings_form_submit';
+
+      break;
+  }
+}
+
+/**
+ * Process best answer configuration settings.
+ */
+function answers_best_answer_settings_form_submit($form, &$form_state) {
+
+  // Process the setting on locking questions.
+  $new = $form_state['values']['answers_best_answer_lock_questions_p'];
+  $old = $form_state['values']['answers_best_answer_old_lock_questions_p'];
+  if ($old != $new) {
+    module_load_include('inc', 'answers', 'includes/answers.lock');
+    answers_reset_lock_info();
+    drupal_set_message($new ? t('Questions that have best answers have been locked.') : t('Questions that have best answers have been unlocked (unless they are locked for another reason)'));
+  }
+
+  // Process the setting on locking best answers when a question is locked.
+  $new = $form_state['values']['answers_best_answer_lock_choice_p'];
+  $old = $form_state['values']['answers_best_answer_old_lock_choice_p'];
+  if ($old != $new) {
+    drupal_set_message($new ? t('Best answers have been locked.') : t('Best answers have been unlocked'));
+  }
+}
+
+/**
+ * Returns the best answer for a question if one is set. Returns NULL otherwise.
+ */
+function answers_best_answer_question_best_answer($question) {
+  $flag = flag_get_flag('best_answer') or die('no "best_answer" flag defined');
+
+  foreach (answers_question_answers($question) as $answer) {
+    if ($flag->is_flagged($answer->nid)) {
+      return $answer;
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_flag_flag().
+ *
+ * Flag API 3
+ */
+function answers_best_answer_flag_flag($flag, $content_id, $account, $flagging) {
+  module_load_include('inc', 'answers', 'includes/answers.lock');
+
+  if ($flag->name == "best_answer") {
+
+    $flagged_answer = entity_metadata_wrapper('node', $content_id);
+    $question = answers_answer_question($content_id);
+    $answers = answers_question_answers($question);
+
+    // Unflag a prior best answer if one exists.
+    $old_answer = NULL;
+    foreach ($answers as $answer) {
+      if (($answer->nid != $content_id) && $flag->is_flagged($answer->nid)) {
+        $flag->flag('unflag', $answer->nid);
+        $old_answer = $answer;
+        answers_question_lock_unset($old_answer, 'answers_best_answer');
+      }
+    }
+    answers_question_lock_set($question, 'answers_best_answer');
+    module_invoke_all('answers_best_answer_set', $question, $flagged_answer->value(), $old_answer);
+  }
+}
+
+/**
+ * Implements hook_flag_unflag().
+ *
+ * Flag API 3
+ */
+function answers_best_answer_flag_unflag($flag, $content_id, $account, $flagging) {
+  module_load_include('inc', 'answers', 'includes/answers.lock');
+  if ($flag->name == "best_answer") {
+
+    $flagged_answer = entity_metadata_wrapper('node', $content_id);
+    $question = answers_answer_question($content_id);
+
+    answers_question_lock_unset($question, 'answers_best_answer');
+    module_invoke_all('answers_best_answer_unset', $question, $flagged_answer->value());
+  }
+}
+
+/**
+ * Implements hook_flag().
+ *
+ * Flag API 2
+ */
+function answers_best_answer_flag($op, $flag, $content_id, $account, $fcid) {
+  if ($flag->name == "best_answer") {
+
+    $flagged_answer = entity_metadata_wrapper('node', $content_id);
+    $question = answers_answer_question($content_id);
+    $answers = answers_question_answers($question);
+
+    if ($op == 'flag') {
+      // Unflag a prior best answer if one exists.
+      $old_answer = NULL;
+      foreach ($answers as $answer) {
+        if (($answer->nid != $content_id) && $flag->is_flagged($answer->nid)) {
+          $flag->flag('unflag', $answer->nid);
+          $old_answer = $answer;
+          answers_question_lock_unset($old_answer, 'answers_best_answer');
+          module_invoke_all('answers_best_answer_unset', $question, $old_answer);
+        }
+      }
+      answers_question_lock_set($question, 'answers_best_answer');
+      module_invoke_all('answers_best_answer_set', $question, $flagged_answer->value(), $old_answer);
+    }
+    elseif ($op == 'unflag' &&  !answers_best_answer_question_best_answer($question)) {
+      answers_question_lock_unset($question, 'answers_best_answer');
+      module_invoke_all('answers_best_answer_unset', $question, $flagged_answer->value());
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_default_flags().
+ *
+ * Defines default flag for marking the best answer for a question.
+ *
+ * Test which version of flags is being used and define the flag appropriately.
+ */
+function answers_best_answer_flag_default_flags() {
+  $flags = array();
+  // Exported flag: "Best Answer".
+  $flags['best_answer'] = ((FLAG_API_VERSION == 3) ?
+    answers_best_answer_best_answer_flag_api3() :
+  answers_best_answer_best_answer_flag_api2()
+  );
+  return $flags;
+}
+
+/**
+ * Wrapper for flag 3.x hook_flag_default_flags().
+ */
+function answers_best_answer_best_answer_flag_api3() {
+  $flag =
+  array(
+    'entity_type' => 'node',
+    'title' => 'Best Answer',
+    'global' => TRUE,
+    'types' => array(
+      0 => 'answers_answer',
+    ),
+    'flag_short' => 'Best',
+    'flag_long' => 'Select as the best answer',
+    'flag_message' => 'Selected as the best answer.',
+    'unflag_short' => 'Unbest',
+    'unflag_long' => 'Unselect as the best answer',
+    'unflag_message' => 'Unselected as the best answer.',
+    'unflag_denied_text' => '',
+    'link_type' => 'toggle',
+    'weight' => 0,
+    'show_in_links' => array(
+      'full' => 0,
+      'teaser' => 0,
+      'rss' => 0,
+      'search_index' => 0,
+      'search_result' => 0,
+      'answers_full_node' => 0,
+      'token' => 0,
+    ),
+    'show_as_field' => 0,
+    'show_on_form' => FALSE,
+    'access_author' => '',
+    'show_contextual_link' => 0,
+    'i18n' => 0,
+    'module' => 'answers_best_answer',
+    'locked' => array(
+      'name' => 'name',
+      'global' => 'global',
+      'types' => 'types',
+      'show_on_page' => 'show_on_page',
+      'show_on_form' => 'show_on_form',
+      'status' => 'status',
+    ),
+    'show_on_page' => FALSE,
+    'status' => TRUE,
+    'api_version' => 3,
+  );
+  return $flag;
+}
+
+/**
+ * Wrapper for flag 2.x hook_flag_default_flags().
+ */
+function answers_best_answer_best_answer_flag_api2() {
+  $flag =
+    $flags['best_answer'] = array(
+      'content_type' => 'node',
+      'name' => 'best_answer',
+      'title' => 'Best Answer',
+      'global' => TRUE,
+      'types' => array('answers_answer'),
+      'roles' => array(
+        'flag' => array(2),
+        'unflag' => array(2),
+      ),
+      'flag_short' => 'Best',
+      'flag_long' => 'Select as the best answer',
+      'flag_message' => 'Selected as the best answer.',
+      'unflag_short' => 'Unbest',
+      'unflag_long' => 'Unselect as the best answer',
+      'unflag_message' => 'Unselected as the best answer.',
+      'show_on_page' => FALSE,
+      'show_on_teaser' => FALSE,
+      'show_on_form' => FALSE,
+      'status' => TRUE,
+      'locked' => array(
+        'content_type' => 'content_type',
+        'name' => 'name',
+        'global' => 'global',
+        'types' => 'types',
+        'show_on_page' => 'show_on_page',
+        'show_on_form' => 'show_on_form',
+        'status' => 'status',
+      ),
+      'module' => 'answers_best_answer',
+      'api_version' => 2,
+    );
+
+  return $flag;
+}
+
+/**
+ * Implements hook_node_view().
+ *
+ * Adding the best answer widget or mark depending on user privileges.
+ */
+function answers_best_answer_node_view($node, $view_mode = 'full') {
+  if ($view_mode == 'answers_full_node' && $node->type == 'answers_answer') {
+    drupal_add_css(drupal_get_path('module', 'answers_best_answer') . '/css/answers_best_answer.css');
+    drupal_add_js(drupal_get_path('module', 'answers_best_answer') . '/js/answers_best_answer.js');
+
+    $flag = flag_get_flag('best_answer') or die('no "best_answer" flag defined');
+    global $user;
+
+    $node->content['best_answer'] = array(
+      '#type' => 'markup',
+      '#weight' => 100,
+    );
+    // If the user can set the flag, add the markup for it.
+    if (answers_best_answer_flag_access($flag, $node->nid, 'flag', $user)) {
+      $node->content['best_answer']['#markup'] = flag_create_link('best_answer', $node->nid);
+    }
+    // Otherwise, if the question has been flagged, mark it.
+    elseif ($flag->is_flagged($node->nid)) {
+      $node->content['best_answer']['#markup'] = '<div class="marked-best-answer">' . t('This one is the BEST answer!') . '</div>';
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_access().
+ *
+ * Determines whether a user can flag a best answer for a question.
+ */
+function answers_best_answer_flag_access($flag, $content_id, $action, $account) {
+  if ($flag->name == "best_answer") {
+    module_load_include('inc', 'answers', 'includes/answers.lock');
+    $question = answers_answer_question($content_id);
+    $best_answer_locked_p = variable_get('answers_best_answer_lock_choice_p', NULL)
+      && answers_question_locked_p($question);
+
+    // The question author can set a best answer if best answers are not locked.
+    // A user with the 'manage answers content' permission can always set a
+    // best answer.
+    return ((($question->uid == $account->uid) && !$best_answer_locked_p) ||
+            user_access('manage answers content', $account));
+  }
+}
+
+/**
+ * Implements hook_answers_lock_info().
+ */
+function answers_best_answer_answers_lock_info() {
+  return variable_get('answers_best_answer_lock_questions_p', FALSE);
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function answers_best_answer_preprocess_node(&$vars) {
+  if ($vars['node']->type == 'answers_answer') {
+    $flag = flag_get_flag('best_answer') or die('no "best_answer" flag defined');
+    if ($flag->is_flagged($vars['node']->nid)) {
+      // Add css class to mark a best answer.
+      $vars['classes_array'][] = 'answers-best-answer';
+      $vars['is_best_answer'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_views_default_views_alter().
+ *
+ * Adding:
+ *   - question_answers: Set the first sort criteria to be the best answer
+ *   - questions:  Indicate whether best answer is flagged.
+ *
+ * http://drupal.org/node/1014774
+ * http://api.drupal.org/api/views/views.api.php/function/hook_views_default_views_alter/7
+ */
+function answers_best_answer_views_default_views_alter(&$views) {
+
+  if (array_key_exists('question_answers', $views)) {
+    $views['question_answers']->tag = ($views['question_answers']->tag == '' ? '' : $views['question_answers']->tag . ', ') . 'answers_best_answer';
+
+    $handler =& $views['question_answers']->display['default']->handler;
+    $handler->display->display_options['use_ajax'] = TRUE;
+
+    /* Relationship: Flags: best_answer */
+    $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+    $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+    $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+    $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'flag_best_answer';
+    $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+    $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'best_answer';
+    $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
+
+    /* Sort criterion: Flags: Flagged time */
+    $best_answer_sort = array();
+    $best_answer_sort['id'] = 'timestamp';
+    $best_answer_sort['table'] = 'flag_content';
+    $best_answer_sort['field'] = 'timestamp';
+    $best_answer_sort['relationship'] = 'flag_content_rel';
+    $best_answer_sort['order'] = 'DESC';
+
+    /* Add the sort criteria as the first for the display */
+    $handler->display->display_options['sorts'] = array_merge(
+      array('timestamp' => $best_answer_sort),
+      isset($handler->display->display_options['sorts']) ? $handler->display->display_options['sorts'] : array()
+      );
+  }
+
+  if (array_key_exists('questions', $views)) {
+    $views['questions']->tag = ($views['questions']->tag == '' ? '' : $views['questions']->tag . ', ') . 'answers_best_answer';
+
+    $handler =& $views['questions']->display['default']->handler;
+
+    /* Relationship: Flags: best_answer */
+    $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+    $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+    $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+    $handler->display->display_options['relationships']['flag_content_rel']['relationship'] = 'reverse_answers_related_question_node';
+    $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+    $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'best_answer';
+    $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
+
+    $old_fields = $handler->display->display_options['fields'];
+    $handler->display->display_options['fields'] = array();
+    /* Field: SUM(Flags: Flagged time) */
+    $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
+    $handler->display->display_options['fields']['timestamp']['table'] = 'flag_content';
+    $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
+    $handler->display->display_options['fields']['timestamp']['relationship'] = 'flag_content_rel';
+    $handler->display->display_options['fields']['timestamp']['group_type'] = 'sum';
+    $handler->display->display_options['fields']['timestamp']['label'] = 'Best Answer';
+    $handler->display->display_options['fields']['timestamp']['exclude'] = TRUE;
+    $handler->display->display_options['fields']['timestamp']['alter']['alter_text'] = 1;
+    $handler->display->display_options['fields']['timestamp']['alter']['text'] = '<img src="' . base_path() . 'misc/message-16-ok.png" />';
+    $handler->display->display_options['fields']['timestamp']['alter']['make_link'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['absolute'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['external'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['replace_spaces'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['trim_whitespace'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['nl2br'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['word_boundary'] = 1;
+    $handler->display->display_options['fields']['timestamp']['alter']['ellipsis'] = 1;
+    $handler->display->display_options['fields']['timestamp']['alter']['more_link'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['strip_tags'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['trim'] = 0;
+    $handler->display->display_options['fields']['timestamp']['alter']['html'] = 0;
+    $handler->display->display_options['fields']['timestamp']['element_label_colon'] = 0;
+    $handler->display->display_options['fields']['timestamp']['element_default_classes'] = 1;
+    $handler->display->display_options['fields']['timestamp']['hide_empty'] = 0;
+    $handler->display->display_options['fields']['timestamp']['empty_zero'] = 0;
+    $handler->display->display_options['fields']['timestamp']['hide_alter_empty'] = 1;
+    $handler->display->display_options['fields']['timestamp']['date_format'] = 'short';
+
+    $handler->display->display_options['fields'] += $old_fields;
+
+    /* Field: COUNT(Content: Nid) */
+    $handler->display->display_options['fields']['nid_1']['alter']['alter_text'] = 1;
+    $handler->display->display_options['fields']['nid_1']['alter']['text'] = '[nid_1] [timestamp]';
+  }
+}

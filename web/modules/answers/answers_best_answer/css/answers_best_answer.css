@@ -1,0 +1,32 @@
+/* answers_best_answer.css */
+
+.flag-best-answer {
+  display: block;
+  float: left;
+}
+.flag-best-answer a,
+.marked-best-answer {
+  display: block;
+  height: 38px;
+  width: 38px;
+  background-image: url('../img/best_flag.png');
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.flag-best-answer a.unflag-action {
+  background-position: 0px 0px;
+}
+
+.flag-best-answer a.unflag-action:hover {
+  background-position: 0px 38px;
+}
+
+.flag-best-answer a.flag-action {
+  background-position: 0px 38px;
+}
+
+.flag-best-answer a.flag-action:hover {
+  background-position: 0px 0px;
+}

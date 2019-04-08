@@ -1,0 +1,30 @@
+<header class="main-header" role="banner">
+    <div class="container">
+      {{ page.header }}
+    </div>
+  </header>
+
+<div class="container">
+
+  <main role="main">
+    <a id="main-content" tabindex="-1"></a>{# link is in html.html.twig #}
+
+    <div class="layout-content">
+      {{ page.content }}
+    </div>{# /.layout-content #}
+
+    {% if page.sidebar %}
+      <aside class="layout-sidebar-first" role="complementary">
+        {{ page.sidebar }}
+      </aside>
+    {% endif %}
+
+  </main>
+
+  {% if page.footer %}
+    <footer role="contentinfo">
+      {{ page.footer }}
+    </footer>
+  {% endif %}
+
+</div>{# /.layout-container #}
