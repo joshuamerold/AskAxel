@@ -141,7 +141,7 @@ class AnswerForm extends FormBase {
     $form['#tree'] = TRUE;
     $form['answer'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Answer this question'),
+      '#title' => $this->t('Beantworte diese Frage!'),
       '#size' => 50,
       '#required' => TRUE,
       '#default_value' => '',
@@ -149,7 +149,7 @@ class AnswerForm extends FormBase {
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Submit'),
+      '#value' => $this->t('Senden!'),
       '#button_type' => 'primary',
     ];
     return $form;
@@ -218,7 +218,7 @@ class AnswerForm extends FormBase {
     $this->question->updateAnswerCount();
 
     // Show message.
-    $this->messenger()->addStatus($this->t('Your answer has been successfully submitted.'));
+    $this->messenger()->addStatus($this->t('Erledigt!'));
   }
 
 }

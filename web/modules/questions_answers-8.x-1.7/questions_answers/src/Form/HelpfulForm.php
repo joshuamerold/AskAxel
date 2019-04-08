@@ -97,7 +97,7 @@ class HelpfulForm extends FormBase {
         '#attributes' => [
           'class' => ['messages messages--status helpful-message'],
         ],
-        '#children' => $this->t('Thank you for your feedback!'),
+        '#children' => $this->t('Danke!'),
       ];
 
       // Add the vote.
@@ -117,11 +117,11 @@ class HelpfulForm extends FormBase {
       '#options' => [
         'yes' => $this->t('Hilfreich (@count @users)', [
           '@count' => $this->answer->getHelpfulVoteCount('yes'),
-          '@users' => ($this->answer->getHelpfulVoteCount('yes') == 1 ? $this->t('user') : $this->t('users')),
+          '@users' => ($this->answer->getHelpfulVoteCount('yes') == 1 ? $this->t('') : $this->t('users')),
         ]),
         'no' => $this->t('Nicht hilfreich (@count @users)', [
           '@count' => $this->answer->getHelpfulVoteCount('no'),
-          '@users' => ($this->answer->getHelpfulVoteCount('no') == 1 ? $this->t('user') : $this->t('users')),
+          '@users' => ($this->answer->getHelpfulVoteCount('no') == 1 ? $this->t('') : $this->t('users')),
         ]),
       ],
       '#default_value' => $this->answer->checkHelpfulVote($this->currentUser->isAnonymous() ? $this->sessionManager->getId() : $this->currentUser->id()),

@@ -97,7 +97,7 @@ class ReportQuestionForm extends FormBase {
         '#attributes' => [
           'class' => ['messages messages--status helpful-message'],
         ],
-        '#children' => $this->t('You have successfully reported this question.'),
+        '#children' => $this->t('Du hast die Frage erfolgreich gemeldet!'),
       ];
 
       // Add the report.
@@ -116,13 +116,13 @@ class ReportQuestionForm extends FormBase {
       // Check if this form was just reported.
       if ($this->currentUser->isAnonymous() && in_array($this->sessionManager->getId(), $reports) || in_array($this->currentUser->id(), $reports)) {
         $form['report'] = [
-          '#markup' => $this->t('You have reported this question'),
+          '#markup' => $this->t('Du hast die Frage gemeldet'),
         ];
       }
       else {
         $form['report'] = [
           '#type' => 'checkbox',
-          '#title' => $this->t('Report this question'),
+          '#title' => $this->t('Frage melden!'),
           '#return_value' => 'report',
           '#ajax' => [
             'callback' => [$this, 'markReported'],

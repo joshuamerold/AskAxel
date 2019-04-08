@@ -116,13 +116,13 @@ class ReportAnswerForm extends FormBase {
       // Check if this form was just reported.
       if ($this->currentUser->isAnonymous() && in_array($this->sessionManager->getId(), $reports) || in_array($this->currentUser->id(), $reports)) {
         $form['report'] = [
-          '#markup' => $this->t('You have reported this answer'),
+          '#markup' => $this->t('Du hast die Antwort erfolgreich gemeldet!'),
         ];
       }
       else {
         $form['report'] = [
           '#type' => 'checkbox',
-          '#title' => $this->t('Report this answer'),
+          '#title' => $this->t('Antwort melden!'),
           '#return_value' => 'report',
           '#ajax' => [
             'callback' => [$this, 'markReported'],

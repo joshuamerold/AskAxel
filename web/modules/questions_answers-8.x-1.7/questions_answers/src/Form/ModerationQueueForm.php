@@ -93,7 +93,7 @@ class ModerationQueueForm extends FormBase {
     foreach (Question::loadMultiple($question_ids) as $question) {
       $form['queue']['#options']['question_' . $question->id()] = [
         ($question->isPublished() == '0' ? $this->t('Unapproved') : $this->t('Reported')),
-        $this->t('Question'),
+        $this->t('Fragen'),
         $question->getValue(),
         '',
         $question->getEntity()->toLink()->toString(),
@@ -112,7 +112,7 @@ class ModerationQueueForm extends FormBase {
     foreach (Answer::loadMultiple($answer_ids) as $answer) {
       $form['queue']['#options']['answer_' . $answer->id()] = [
         ($answer->isPublished() == '0' ? $this->t('Unapproved') : $this->t('Reported')),
-        $this->t('Answer'),
+        $this->t('beantworten!'),
         $answer->getValue(),
         $answer->getQuestion()->getValue(),
         $answer->getEntity()->toLink()->toString(),

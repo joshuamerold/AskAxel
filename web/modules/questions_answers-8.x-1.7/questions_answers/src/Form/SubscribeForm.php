@@ -99,7 +99,7 @@ class SubscribeForm extends FormBase {
         ];
         $form['button'] = [
           '#type' => 'button',
-          '#value' => $this->t('Submit'),
+          '#value' => $this->t('Senden!'),
           '#ajax' => [
             'callback' => [$this, 'markSubscribed'],
             'wrapper' => 'subscribe_button_' . $this->question->id(),

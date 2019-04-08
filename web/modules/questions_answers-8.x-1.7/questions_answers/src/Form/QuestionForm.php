@@ -154,11 +154,11 @@ class QuestionForm extends FormBase {
       '#attributes' => [
         'class' => ['header-info'],
       ],
-      '#children' => $this->t('Have a question of your own? Ask us here!'),
+      '#children' => $this->t('Hast du eine Frage? Her damit!'),
     ];
     $form['question'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Question'),
+      '#title' => $this->t('Frage!'),
       '#size' => 50,
       '#required' => TRUE,
       '#default_value' => '',
@@ -167,7 +167,7 @@ class QuestionForm extends FormBase {
     if ($this->currentUser->isAnonymous()) {
       $form['email'] = [
         '#type' => 'email',
-        '#title' => $this->t('Email Address'),
+        '#title' => $this->t('Email Addresse'),
         '#description' => $this->t('Optional. Enter if you would like to receive an email when your question is answered.'),
         '#required' => FALSE,
         '#default_value' => '',
@@ -197,7 +197,7 @@ class QuestionForm extends FormBase {
     $form['actions']['#type'] = 'actions';
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Submit'),
+      '#value' => $this->t('Senden!'),
       '#button_type' => 'primary',
     ];
     return $form;
@@ -247,13 +247,13 @@ class QuestionForm extends FormBase {
     $this->entity->save();
 
     // Show message.
-    $this->messenger()->addStatus($this->t('Your question has been successfully submitted.'));
+    $this->messenger()->addStatus($this->t('Frage erfolgreich übermittelt!'));
 
     // Send notifications that a new question has been submitted.
     foreach (explode(PHP_EOL, $this->settings['notify_new_questions']) as $email) {
       if (!empty($email)) {
         // Build the email.
-        $subjectText = $this->t('New question has been asked at [site:name]');
+        $subjectText = $this->t('Neue Frage auf [site:name]');
         $emailTemplate = [
           '#theme' => 'questions_answers_email_new_question',
         ];
