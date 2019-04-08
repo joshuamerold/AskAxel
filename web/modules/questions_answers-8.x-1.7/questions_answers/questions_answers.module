@@ -14,6 +14,7 @@ use Drupal\Core\Render\Markup;
  */
 function questions_answers_theme($existing, $type, $theme, $path) {
   return [
+
     // Template for questions and answers.
     'questions_answers' => [
       'variables' => [

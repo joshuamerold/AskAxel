@@ -13,12 +13,15 @@
 #}
 
 <div class="questions-and-answers">
+{{ question_form }}
+<br>
+<h2>Bereits gestellte Fragen</h2>
   {% if questions|length == 0 %}
-    <div class="header">{{ 'No questions have been asked.'|t }}</div>
+    <div class="header">{{ 'Bisher keine Frage!'|t }}</div>
   {% else %}
-    <div class="header">{{ 'Click each question to see its answers.'|t }}</div>
+    <div class="header">{{ 'Auf Frage klicken um deren Antwort zu sehen'|t }}</div>
     <div class="questions">{{ questions }}</div>
   {% endif %}
-  {{ question_form }}
+  
   <div class="terms-and-conditions">{{ terms_and_conditions}}</div>
 </div>

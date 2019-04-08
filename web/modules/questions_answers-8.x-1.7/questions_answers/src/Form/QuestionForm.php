@@ -2,6 +2,7 @@
 
 namespace Drupal\questions_answers\Form;
 
+use Drupal\questions_answers\Entity\Question;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -11,7 +12,7 @@ use Drupal\Core\Render\Renderer;
 use Drupal\Core\Utility\Token;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\Entity;
-use Drupal\questions_answers\Entity\Question;
+
 
 /**
  * Form for asking a question about an entity.
