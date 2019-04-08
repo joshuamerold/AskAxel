@@ -154,11 +154,10 @@ class QuestionForm extends FormBase {
       '#attributes' => [
         'class' => ['header-info'],
       ],
-      '#children' => $this->t('Hast du eine Frage? Her damit!'),
     ];
     $form['question'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Frage!'),
+      '#title' => $this->t('Was möchtest du wissen?'),
       '#size' => 50,
       '#required' => TRUE,
       '#default_value' => '',

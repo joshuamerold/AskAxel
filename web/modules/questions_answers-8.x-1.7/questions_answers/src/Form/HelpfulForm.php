@@ -115,13 +115,13 @@ class HelpfulForm extends FormBase {
       '#type' => 'radios',
       '#multiple' => FALSE,
       '#options' => [
-        'yes' => $this->t('Hilfreich (@count @users)', [
+        'yes' => $this->t('Hilfreich ( @count @users)', [
           '@count' => $this->answer->getHelpfulVoteCount('yes'),
-          '@users' => ($this->answer->getHelpfulVoteCount('yes') == 1 ? $this->t('') : $this->t('users')),
+          '@users' => ($this->answer->getHelpfulVoteCount('yes') == 1 ? $this->t('') : $this->t('')),
         ]),
-        'no' => $this->t('Nicht hilfreich (@count @users)', [
+        'no' => $this->t('Nicht hilfreich ( @count @users)', [
           '@count' => $this->answer->getHelpfulVoteCount('no'),
-          '@users' => ($this->answer->getHelpfulVoteCount('no') == 1 ? $this->t('') : $this->t('users')),
+          '@users' => ($this->answer->getHelpfulVoteCount('no') == 1 ? $this->t('') : $this->t('')),
         ]),
       ],
       '#default_value' => $this->answer->checkHelpfulVote($this->currentUser->isAnonymous() ? $this->sessionManager->getId() : $this->currentUser->id()),

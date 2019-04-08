@@ -75,3 +75,15 @@ html .question:last-Child{
 .question .created{
     margin-top: 20px; 
 }
+
+.field--label{
+    display: none; 
+}
+
+footer .author{
+    display: none; 
+}
+
+.questions-answers-question-form-2-field-q-a .form-item .control-label{
+    font-size: 140%;
+}
