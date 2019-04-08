@@ -87,3 +87,8 @@ footer .author{
 .questions-answers-question-form-2-field-q-a .form-item .control-label{
     font-size: 140%;
 }
+
+html .btn-primary{
+    background-color: #2a96ff;
+    border-color: #2a96ff;
+}
