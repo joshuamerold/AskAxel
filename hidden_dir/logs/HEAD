@@ -1,0 +1,11 @@
+0000000000000000000000000000000000000000 e60425480dae278bec02b1e27cfa5c2b1b569af4 Natascha Forster <forsternatascha@gmail.com> 1553757344 +0100	clone: from https://github.com/JoshuaMerold/AskAxel.git
+e60425480dae278bec02b1e27cfa5c2b1b569af4 c3c96f0fded4d310c0a093e7469fd9a8cf83844b Natascha Forster <forsternatascha@gmail.com> 1553762904 +0100	commit: Uploading first working site
+c3c96f0fded4d310c0a093e7469fd9a8cf83844b 2ca51e3af699b5b3dad96bb9cbccd7618f50500e Natascha Forster <forsternatascha@gmail.com> 1553771739 +0100	commit: configuration download
+2ca51e3af699b5b3dad96bb9cbccd7618f50500e 596aaf95c9f3019c90f6c3d23760dd619b56f3a4 Natascha Forster <forsternatascha@gmail.com> 1554280156 +0200	commit: Added logo, Q&A-block and theme
+596aaf95c9f3019c90f6c3d23760dd619b56f3a4 76b45a96a12d1d53086958054358c54c891a8a51 Natascha Forster <forsternatascha@gmail.com> 1554281065 +0200	commit: Added theme and Q&A functionality
+76b45a96a12d1d53086958054358c54c891a8a51 c04d9bb283579355ed2c720eb270ab272c52471b Natascha Forster <forsternatascha@gmail.com> 1554723797 +0200	commit: Add and configure Bootstrap Theme template
+c04d9bb283579355ed2c720eb270ab272c52471b 9461ab7a1cee2a458e238234f3affc7874d7991d Natascha Forster <forsternatascha@gmail.com> 1554729445 +0200	commit: Rearrange question and answers and some minor font styling
+9461ab7a1cee2a458e238234f3affc7874d7991d 50d48fe29ea876777d0a44e317b645d41354f5f4 Natascha Forster <forsternatascha@gmail.com> 1554730843 +0200	commit: tranlate text
+50d48fe29ea876777d0a44e317b645d41354f5f4 614e41b1ed601ce29f69b01b32b863d8c7e44bdc Natascha Forster <forsternatascha@gmail.com> 1554732743 +0200	commit: Further translation
+614e41b1ed601ce29f69b01b32b863d8c7e44bdc bbf0315d1ed0a60f19532a89754afac928ec16a2 Natascha Forster <forsternatascha@gmail.com> 1554734524 +0200	commit: final style-changes
+bbf0315d1ed0a60f19532a89754afac928ec16a2 8ab1a38e7af330a2c548e2dbdf10ed10f700bdfa Natascha Forster <forsternatascha@gmail.com> 1554735434 +0200	commit: final landingpage
